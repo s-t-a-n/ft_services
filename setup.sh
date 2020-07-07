@@ -158,6 +158,13 @@ function perform_actions()
 					VBoxManage unregistervm --delete "minikube" 2>/dev/null
 					exit 0
 				;;
+				Linux)
+					minikube_wrap stop
+					rm -rf ~/.minikube
+					rm -rf ~/.docker
+					VBoxManage controlvm "minikube" poweroffip
+					VBoxManage unregistervm --delete "minikube"
+					exit 0
 			esac
 		;;
 	esac
@@ -207,6 +214,7 @@ function minikube_wrap()
 				minikube start $MINIKUBE_FLAGS
 				return $?
 			fi
+			eval $(minikube docker-env)
 		;;
 		stop)
 			if minikube status 2>/dev/null 1>/dev/null; then
