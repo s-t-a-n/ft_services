@@ -25,6 +25,7 @@ case $KERNEL in
 		MINIKUBE_FLAGS+=--vm-driver=virtualbox
 		;;
 	Linux)
+		#MINIKUBE_FLAGS+=--vm-driver=virtualbox
 		;;
 esac
 
@@ -162,8 +163,16 @@ function perform_actions()
 					minikube_wrap stop
 					rm -rf ~/.minikube
 					rm -rf ~/.docker
+					rm -rf ~/.kube
 					VBoxManage controlvm "minikube" poweroffip
 					VBoxManage unregistervm --delete "minikube"
+					minikube delete
+					sudo kubeadm reset
+					sudo rm -rf /var/lib/minikube
+					sudo rm -rf /var/lib/kubelet
+					sudo rm -rf /var/lib/localkube
+					sudo rm -rf /data/minikube
+					sudo rm -rf /var/lib/kubeadm.yaml
 					exit 0
 			esac
 		;;
@@ -212,9 +221,9 @@ function minikube_wrap()
 		start)
 			if ! minikube status 2>/dev/null 1>/dev/null; then
 				minikube start $MINIKUBE_FLAGS
+				eval $(minikube docker-env)
 				return $?
 			fi
-			eval $(minikube docker-env)
 		;;
 		stop)
 			if minikube status 2>/dev/null 1>/dev/null; then
