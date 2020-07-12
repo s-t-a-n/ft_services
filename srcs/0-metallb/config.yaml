@@ -8,5 +8,5 @@ data:
     address-pools:
     - name: address-pool-1
       protocol: layer2
-      addresses:        
-      - 10.10.0.100-10.10.0.200
+      addresses:
+      - 192.168.99.95-192.168.99.105

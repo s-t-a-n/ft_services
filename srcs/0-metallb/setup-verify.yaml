@@ -1,7 +1,0 @@
-#!/bin/sh
-
-kubectl create namespace kube-verify
-kubectl apply -f kube-verify.yaml
-
-kubectl expose deployment kube-verify -n kube-verify --type=LoadBalancer --target-port=8080 --port=80
-kubectl describe service kube-verify -n kube-verify

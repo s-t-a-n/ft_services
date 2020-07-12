@@ -140,9 +140,11 @@ function perform_actions()
 {
 	case $ACTION in
 		activate)
-		for service_d in ./srcs/services/*/; do
-			echo $service_d
-		done
+			shopt -s dotglob
+			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
+				logp info "Starting $service_d..."
+				sh $service_d/setup.sh
+			done
 		;;
 		start)
 			logp info "Starting..."
@@ -159,9 +161,9 @@ function perform_actions()
 			case $KERNEL in
 				Darwin)
 					minikube_wrap stop
+					minikube delete
 					rm -rf ~/goinfre/minikube
 					rm -rf ~/goinfre/docker
-					minikube delete
 					VBoxManage controlvm "minikube" poweroffip 2>/dev/null 
 					VBoxManage unregistervm --delete "minikube" 2>/dev/null
 					exit 0
@@ -220,6 +222,8 @@ function setup_env()
 			fi
 		;;
 	esac
+	minikube config set WantUpdateNotification false # disable annoying warning
+	export MINIKUBE_IN_STYLE=false # disable childish emoji
 }
 
 function minikube_wrap()
