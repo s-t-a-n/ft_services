@@ -97,6 +97,7 @@ function handle_flags()
 	for ARG in $@
 	do
 		if [ "${ARG}" == "start" ]; then ACTION="start"; break; fi
+		if [ "${ARG}" == "activate" ]; then ACTION="activate"; break; fi
 		if [ "${ARG}" == "stop" ]; then ACTION="stop"; break; fi
 		if [ "${ARG}" == "purge" ]; then ACTION="purge"; break; fi
 	done
@@ -138,6 +139,11 @@ function handle_flags()
 function perform_actions()
 {
 	case $ACTION in
+		activate)
+		for service_d in ./srcs/services/*/; do
+			echo $service_d
+		done
+		;;
 		start)
 			logp info "Starting..."
 			minikube_wrap start
@@ -155,6 +161,7 @@ function perform_actions()
 					minikube_wrap stop
 					rm -rf ~/goinfre/minikube
 					rm -rf ~/goinfre/docker
+					minikube delete
 					VBoxManage controlvm "minikube" poweroffip 2>/dev/null 
 					VBoxManage unregistervm --delete "minikube" 2>/dev/null
 					exit 0
@@ -232,18 +239,6 @@ function minikube_wrap()
 			fi
 		;;
 	esac
-}
-
-
-function kubernetes()
-{
-	if ! minikube_wrap start; then
-		logp fatal "Couldn't start minikube!"
-	fi
-
-	for service in ./srcs/services/*.yaml; do
-		kubectl apply -f  $service
-	done
 }
 
 function main()
