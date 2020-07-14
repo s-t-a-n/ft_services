@@ -1,0 +1,32 @@
+### SECRETS
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+data:
+  person: U3B5IEJvdA==
+
+### TO INCLUDE SECRET ADD TO YAML
+env:
+  - name: WHO
+    valueFrom:
+      secretKeyRef:
+        name: app-secret
+        key: person
+
+### CONFIGMAP
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  person: Emily Short
+
+### TO INCLUDE CONFIGMAP ADD TO YAML
+env:
+  - name: WHO
+    valueFrom:
+      configMapKeyRef:
+        name: app-config
+        key: person

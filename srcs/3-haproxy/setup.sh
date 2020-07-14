@@ -1,4 +1,8 @@
 #!/bin/sh
 basedir=$(dirname "$0")
 
-kubectl expose deployment kubernetes-dashboard --name kubernetes-dashboard-exposed -n kubernetes-dashboard --type=LoadBalancer --port=8443 --target-port=8443
+kubectl apply -f $basedir/haproxy.yaml
+kubectl apply -f $basedir/cluster-role-binding.yaml
+kubectl apply -f $basedir/default-backend.yaml
+kubectl apply -f $basedir/haproxy-configmap.yaml
+kubectl apply -f $basedir/haproxy-ingress.yaml

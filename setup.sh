@@ -62,6 +62,9 @@ function logp()
 		warning)
 			zsh -c "echo -e \"\033[31m\e[1m* \e[0m$2\""
 			;;
+		warning_nnl)
+			zsh -c "echo -n -e \"\033[31m\e[1m* \e[0m$2\""
+			;;
 		fatal)
 			zsh -c "echo -e \"\e[31m\e[1m* \e[0m\e[30m\e[101m$2\e[0m\""
 			exit 1
@@ -150,10 +153,10 @@ function file_update()
 		name=${names[i]}; i=$((i + 1))
 		wget -O $basedir/$name.yaml.new $src 1>/dev/null 2>&1 || exit 1
 		if ! diff $basedir/$name.yaml $basedir/$name.yaml.new 1>/dev/null; then
-			logp info_nnl "New version for $name.. continu and show diff? y/n : "; read yn
+			echo;logp warning_nnl "New version for $name.. continue and show diff? y/n : "; read yn </dev/tty
 			if [ "$yn" == "y" ] || [ "$yn" == "Y" ]; then
 				diff $basedir/$name.yaml $basedir/$name.yaml.new
-				echo -n "Continue and update? y/n"; read yn
+				echo;logp warning_nnl "Continue update? y/n : "; read yn </dev/tty; echo
 				if [ "$yn" == "y" ] || [ "$yn" == "Y" ]; then
 					mv $basedir/$name.yaml.new $basedir/$name.yaml && rm -f $basedir/$name.yaml.new
 				else

@@ -188,7 +188,7 @@ metadata:
 spec:
   selector:
     run: haproxy-ingress
-  type: NodePort
+  type: LoadBalancer
   ports:
   - name: http
     port: 80
@@ -202,4 +202,3 @@ spec:
     port: 1024
     protocol: TCP
     targetPort: 1024
-a

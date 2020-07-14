@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    kubernetes.io/ingress.class: "haproxy"
+    ingress.kubernetes.io/backend-protocol: "HTTPS"
+    ingress.kubernetes.io/ssl-redirect: "true"
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  tls:
+  - hosts:
+    - kubernetes-dashboard
+  rules:
+  - host: dashboard.kub
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 443
