@@ -56,6 +56,9 @@ function logp()
 		info)
 			zsh -c "echo -e \"\e[32m\e[1m* \e[0m$2\""
 			;;
+		info_nnl)
+			zsh -c "echo -n -e \"\e[32m\e[1m* \e[0m$2\""
+			;;
 		warning)
 			zsh -c "echo -e \"\033[31m\e[1m* \e[0m$2\""
 			;;
@@ -98,7 +101,9 @@ function handle_flags()
 	do
 		if [ "${ARG}" == "start" ]; then ACTION="start"; break; fi
 		if [ "${ARG}" == "activate" ]; then ACTION="activate"; break; fi
+		if [ "${ARG}" == "update" ]; then ACTION="update"; break; fi
 		if [ "${ARG}" == "stop" ]; then ACTION="stop"; break; fi
+		if [ "${ARG}" == "get" ]; then ACTION="get"; break; fi
 		if [ "${ARG}" == "purge" ]; then ACTION="purge"; break; fi
 	done
 	if [ "$ACTION" = "" ]; then
@@ -136,6 +141,33 @@ function handle_flags()
 	shift $((OPTIND-1))
 }
 
+function file_update()
+{
+	source $1
+	basedir=$(dirname "$1")
+	i=0
+	for src in ${srcs[@]}; do
+		name=${names[i]}; i=$((i + 1))
+		wget -O $basedir/$name.yaml.new $src 1>/dev/null 2>&1 || exit 1
+		if ! diff $basedir/$name.yaml $basedir/$name.yaml.new 1>/dev/null; then
+			logp info_nnl "New version for $name.. continu and show diff? y/n : "; read yn
+			if [ "$yn" == "y" ] || [ "$yn" == "Y" ]; then
+				diff $basedir/$name.yaml $basedir/$name.yaml.new
+				echo -n "Continue and update? y/n"; read yn
+				if [ "$yn" == "y" ] || [ "$yn" == "Y" ]; then
+					mv $basedir/$name.yaml.new $basedir/$name.yaml && rm -f $basedir/$name.yaml.new
+				else
+					rm -f $basedir/$name.yaml.new
+				fi
+			fi
+		else
+			printf "No update available for $name. "
+			rm -f $basedir/$name.yaml.new
+		fi
+	done
+	echo
+}
+
 function perform_actions()
 {
 	case $ACTION in
@@ -155,6 +187,20 @@ function perform_actions()
 			logp info "Stopping..."
 			minikube_wrap stop
 			exit $?
+		;;
+		update)
+			shopt -s dotglob
+			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
+				logp info_nnl "Checking for updates for $service_d..."
+				file_update $service_d/update.sh
+			done
+		;;
+		get)
+			case $2 in
+				admin)
+					kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+				;;
+			esac
 		;;
 		purge)
 			logp info "Purging..."
@@ -251,7 +297,7 @@ function main()
 	check_env
 	setup_env
 	handle_flags $@
-	perform_actions
+	perform_actions $@
 }
 
 main $@
