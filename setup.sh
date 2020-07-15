@@ -30,7 +30,7 @@ case $KERNEL in
 esac
 
 
-DEPENDENCIES=(docker kubectl minikube kubeadm helm)
+DEPENDENCIES=(docker kubectl minikube helm)
 function clean_up()
 {
 	case $1 in
@@ -104,9 +104,11 @@ function handle_flags()
 	do
 		if [ "${ARG}" == "start" ]; then ACTION="start"; break; fi
 		if [ "${ARG}" == "activate" ]; then ACTION="activate"; break; fi
+		if [ "${ARG}" == "post" ]; then ACTION="post"; break; fi
 		if [ "${ARG}" == "update" ]; then ACTION="update"; break; fi
 		if [ "${ARG}" == "stop" ]; then ACTION="stop"; break; fi
 		if [ "${ARG}" == "get" ]; then ACTION="get"; break; fi
+		if [ "${ARG}" == "add" ]; then ACTION="add"; break; fi
 		if [ "${ARG}" == "purge" ]; then ACTION="purge"; break; fi
 	done
 	if [ "$ACTION" = "" ]; then
@@ -171,6 +173,29 @@ function file_update()
 	echo
 }
 
+function wireguard_add_peer()
+{
+	if [ "$1" == "" ] || [ "$2" == "" ]; then
+		logp fatal "No allowed ip's CIDR and key specified.."
+	fi
+cat <<'EOF' | kubectl apply -f -
+apiVersion: kilo.squat.ai/v1alpha1
+kind: Peer
+metadata:
+  name: squat
+spec:
+  allowedIPs:
+  - $1
+  publicKey: $2
+  persistentKeepalive: 10
+EOF
+	if [ $? -eq 0 ]; then
+		logp info "Succesfully added peer."
+	else
+		logp fatal "Couldn't add peer."
+	fi
+}
+
 function perform_actions()
 {
 	case $ACTION in
@@ -179,6 +204,14 @@ function perform_actions()
 			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
 				logp info "Starting $service_d..."
 				sh $service_d/setup.sh
+			done
+		;;
+		post)
+			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
+				if [ -f $service_d/post.sh ]; then
+					logp info "Running postscript for $service_d..."
+					sh $service_d/post.sh
+				fi
 			done
 		;;
 		start)
@@ -202,6 +235,14 @@ function perform_actions()
 			case $2 in
 				admin)
 					kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+				;;
+			esac
+		;;
+		add)
+			case $2 in
+				wireguard-peer)
+					logp info_nnl "Adding wireguard peer.. "
+					wireguard_add_peer $3 $4
 				;;
 			esac
 		;;
