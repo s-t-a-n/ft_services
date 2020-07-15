@@ -30,7 +30,7 @@ case $KERNEL in
 esac
 
 
-DEPENDENCIES=(docker kubectl minikube)
+DEPENDENCIES=(docker kubectl minikube kubeadm helm)
 function clean_up()
 {
 	case $1 in
