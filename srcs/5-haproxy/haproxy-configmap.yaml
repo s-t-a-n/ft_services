@@ -1,11 +1,9 @@
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: haproxy-configmap
   namespace: default
 data:
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +27,7 @@ spec:
       - name: haproxy-ingress
         image: haproxytech/kubernetes-ingress
         Args:
-       - --default-backend-service=haproxy-controller/ingress-default-backend
+      - --default-backend-service=haproxy-controller/ingress-default-backend
         - --default-ssl-certificate=default/tls-secret
         - --configmap=default/haproxy-configmap
         ports:

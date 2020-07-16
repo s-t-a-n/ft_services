@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vsftpd-alpine
+spec:
+  volumes:
+    - name: vsftpd-alpine-pv-claim
+      persistentVolumeClaim:
+        claimName: vsftpd-alpine-pv-claim
+  containers:
+    - name: task-pv-container
+      image: vsftpd-alpine
+      ports:
+        - containerPort: 21
+          name: "ftps"
+      volumeMounts:
+        - mountPath: "/data"
+          name: vsftpd-alpine-pv-claim
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vsftpd-alpine
+  labels:
+    app: vsftpd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vsftpd
+  template:
+    metadata:
+      labels:
+        app: vsftpd
+    spec:
+      containers:
+      - name: vsftpd
+        image: vsftpd-alpine:1
+        ports:
+        - containerPort: 21

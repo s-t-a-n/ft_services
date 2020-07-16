@@ -17,6 +17,7 @@ KERNEL="$(uname -s)"
 # Global flags/vars
 MINIKUBE_FLAGS=
 ACTION=
+GLOB_CONFIGMAP=./srcs/global-configmap.yaml
 
 export MINIKUBE_IN_STYLE=false # disable childish emoji
 
@@ -153,7 +154,7 @@ function file_update()
 	i=0
 	for src in ${srcs[@]}; do
 		name=${names[i]}; i=$((i + 1))
-		wget -O $basedir/$name.yaml.new $src 1>/dev/null 2>&1 || exit 1
+		wget -O $basedir/$name.yaml.new $src 1>/dev/null 2>&1 || return 1
 		if ! diff $basedir/$name.yaml $basedir/$name.yaml.new 1>/dev/null; then
 			echo;logp warning_nnl "New version for $name.. continue and show diff? y/n : "; read yn </dev/tty
 			if [ "$yn" == "y" ] || [ "$yn" == "Y" ]; then
@@ -200,6 +201,7 @@ function perform_actions()
 {
 	case $ACTION in
 		activate)
+			kubectl apply -f $GLOB_CONFIGMAP || logp fatal "Failed to apply $GLOB_CONFIGMAP"
 			shopt -s dotglob
 			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
 				logp info "Starting $service_d..."
@@ -217,12 +219,12 @@ function perform_actions()
 		start)
 			logp info "Starting..."
 			minikube_wrap start
-		exit $?
+			return $?
 		;;
 		stop)
 			logp info "Stopping..."
 			minikube_wrap stop
-			exit $?
+			return $?
 		;;
 		update)
 			shopt -s dotglob
@@ -256,7 +258,7 @@ function perform_actions()
 					rm -rf ~/goinfre/docker
 					VBoxManage controlvm "minikube" poweroffip 2>/dev/null 
 					VBoxManage unregistervm --delete "minikube" 2>/dev/null
-					exit 0
+					return 0
 				;;
 				Linux)
 					minikube_wrap stop
@@ -272,7 +274,7 @@ function perform_actions()
 					sudo rm -rf /var/lib/localkube
 					sudo rm -rf /data/minikube
 					sudo rm -rf /var/lib/kubeadm.yaml
-					exit 0
+					return 0
 			esac
 		;;
 	esac
@@ -310,6 +312,18 @@ function setup_env()
 				mkdir ~/goinfre/minikube
 				ln -s ~/goinfre/minikube ~/.minikube
 			fi
+			if ! docker version 1>/dev/null 2>&1; then
+				logp info "Starting docker..."	
+				open -a Docker
+				while :
+				do
+					if docker version 1>/dev/null 2>&1; then
+						break
+					else
+						sleep 1
+					fi
+				done
+			fi
 		;;
 	esac
 	minikube config set WantUpdateNotification false # disable annoying warning
@@ -339,8 +353,8 @@ function main()
 {
 	#banner
 	check_env
-	setup_env
 	handle_flags $@
+	setup_env
 	perform_actions $@
 }
 
