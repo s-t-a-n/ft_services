@@ -17,7 +17,9 @@ KERNEL="$(uname -s)"
 # Global flags/vars
 MINIKUBE_FLAGS=
 ACTION=
-GLOB_CONFIGMAP=./srcs/global-configmap.yaml
+BASEDIR="$(dirname $0)"
+SRCS_DIR=$BASEDIR/srcs
+GLOB_VAR_FILE=$SRCS_DIR/build-variables.txt
 
 export MINIKUBE_IN_STYLE=false # disable childish emoji
 
@@ -174,6 +176,43 @@ function file_update()
 	echo
 }
 
+function yaml_tmp_create()
+{
+	shopt -s dotglob
+	find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
+		for yaml in $service_d/*.yaml; do
+			basename="$(basename $yaml)"
+			echo cp $yaml $service_d/tmp_$basename
+		done
+	done
+}
+
+function yaml_tmp_insert_variables()
+{
+	source $GLOB_VAR_FILE
+	shopt -s dotglob
+	find $SRCS_DIR -prune -type f -name "tmp_*.yaml" | while IFS= read -r yaml; do
+			basename="$(basename $yaml)"
+			for line in $(cat $GLOB_VAR_FILE); do
+				var="$(echo $line | cut -d= -f1)"
+				echo $var
+				echo ${!var}
+				echo sed -i '' s/__${var}__/${!var}/g $yaml
+			done
+		done
+}
+
+function yaml_tmp_delete()
+{
+	shopt -s dotglob
+	find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
+		for yaml in $service_d/*.yaml; do
+			basename="$(basename $yaml)"
+			echo rm -f $service_d/tmp_$basename
+		done
+	done
+}
+
 function wireguard_add_peer()
 {
 	if [ "$1" == "" ] || [ "$2" == "" ]; then
@@ -201,15 +240,15 @@ function perform_actions()
 {
 	case $ACTION in
 		activate)
-			kubectl apply -f $GLOB_CONFIGMAP || logp fatal "Failed to apply $GLOB_CONFIGMAP"
+			kubectl apply -k $SRCS_DIR || logp fatal "Couldn't apply global configmap.."
 			shopt -s dotglob
-			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
+			find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
 				logp info "Starting $service_d..."
 				sh $service_d/setup.sh
 			done
 		;;
 		post)
-			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
+			find $SRC_DIR/* -prune -type d | while IFS= read -r service_d; do
 				if [ -f $service_d/post.sh ]; then
 					logp info "Running postscript for $service_d..."
 					sh $service_d/post.sh
@@ -218,6 +257,7 @@ function perform_actions()
 		;;
 		start)
 			logp info "Starting..."
+			setup_env
 			minikube_wrap start
 			return $?
 		;;
@@ -228,7 +268,7 @@ function perform_actions()
 		;;
 		update)
 			shopt -s dotglob
-			find ./srcs/* -prune -type d | while IFS= read -r service_d; do
+			find $SRC_DIR/* -prune -type d | while IFS= read -r service_d; do
 				logp info_nnl "Checking for updates for $service_d..."
 				file_update $service_d/update.sh
 			done
@@ -298,21 +338,21 @@ function setup_env()
 {
 	case $KERNEL in
 		Darwin)
-			if [ ! -d ~/goinfre/docker ] || [ ! -L ~/Library/Containers/com.docker.docker ]
-			then
-				logp info "Setting up Docker folder @ ~/goinfre/docker!"
-				rm -rf ~/Library/Containers/com.docker.docker
-				mkdir ~/goinfre/docker
-				ln -s ~/goinfre/docker ~/Library/Containers/com.docker.docker
-			fi
-			if [ ! -d ~/goinfre/minikube ] || [ ! -L ~/.minikube ]
-			then
-				logp info "Setting up Minikube folder @ ~/goinfre/minikube!"
-				rm -rf ~/.minikube
-				mkdir ~/goinfre/minikube
-				ln -s ~/goinfre/minikube ~/.minikube
-			fi
 			if ! docker version 1>/dev/null 2>&1; then
+				if [ ! -d ~/goinfre/docker ] || [ ! -L ~/Library/Containers/com.docker.docker ]
+				then
+					logp info "Setting up Docker folder @ ~/goinfre/docker!"
+					rm -rf ~/Library/Containers/com.docker.docker
+					mkdir ~/goinfre/docker
+					ln -s ~/goinfre/docker ~/Library/Containers/com.docker.docker
+				fi
+				if [ ! -d ~/goinfre/minikube ] || [ ! -L ~/.minikube ]
+				then
+					logp info "Setting up Minikube folder @ ~/goinfre/minikube!"
+					rm -rf ~/.minikube
+					mkdir ~/goinfre/minikube
+					ln -s ~/goinfre/minikube ~/.minikube
+				fi
 				logp info "Starting docker..."	
 				open -a Docker
 				while :
@@ -354,8 +394,12 @@ function main()
 	#banner
 	check_env
 	handle_flags $@
-	setup_env
 	perform_actions $@
 }
+
+yaml_tmp_create
+yaml_tmp_insert_variables
+yaml_tmp_delete
+exit 0
 
 main $@

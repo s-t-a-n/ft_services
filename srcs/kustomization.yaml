@@ -1,0 +1,20 @@
+configMapGenerator:
+- name: cluster-properties
+  files:
+  - cluster-properties.txt
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+  annotations:
+    note: generated
+secretGenerator:
+- name: cluster-authenthication
+  files:
+  - cluster-authenthication.txt
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+  annotations:
+    note: generated

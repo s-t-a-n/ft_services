@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: global-configmap
-data:
-  STORAGE: "~/goingfre/kub_storage"
