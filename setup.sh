@@ -41,7 +41,9 @@ function clean_up()
 			logp fatal "aborting.."
 		;;
 		EXIT)
-		#logp endsection
+			tmp_delete yaml
+			tmp_delete sh
+			#logp endsection
 		;;
 		TERM)
 			logp fatal "aborting.."
@@ -241,6 +243,8 @@ function perform_actions()
 {
 	case $ACTION in
 		activate)
+			tmp_create yaml
+			tmp_insert_variables yaml
 			kubectl apply -k $SRCS_DIR || logp fatal "Couldn't apply global configmap.."
 			shopt -s dotglob
 			find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
@@ -397,10 +401,4 @@ function main()
 	handle_flags $@
 	perform_actions $@
 }
-
-tmp_create yaml
-tmp_insert_variables yaml
-tmp_delete yaml
-exit 0
-
 main $@

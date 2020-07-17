@@ -1,4 +1,4 @@
 #!/bin/sh
 basedir=$(dirname "$0")
 
-kubectl apply -f $basedir/wireguard.yaml
+kubectl apply -f $basedir/tmp_wireguard.yaml
