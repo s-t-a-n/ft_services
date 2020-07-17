@@ -176,39 +176,40 @@ function file_update()
 	echo
 }
 
-function yaml_tmp_create()
+function tmp_create()
 {
+	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	shopt -s dotglob
 	find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
-		for yaml in $service_d/*.yaml; do
-			basename="$(basename $yaml)"
-			echo cp $yaml $service_d/tmp_$basename
+		for file in $service_d/*.$ext; do
+			basename="$(basename $file)"
+			cp $file $service_d/tmp_$basename
 		done
 	done
 }
 
-function yaml_tmp_insert_variables()
+function tmp_insert_variables()
 {
+	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	source $GLOB_VAR_FILE
 	shopt -s dotglob
-	find $SRCS_DIR -prune -type f -name "tmp_*.yaml" | while IFS= read -r yaml; do
-			basename="$(basename $yaml)"
-			for line in $(cat $GLOB_VAR_FILE); do
-				var="$(echo $line | cut -d= -f1)"
-				echo $var
-				echo ${!var}
-				echo sed -i '' s/__${var}__/${!var}/g $yaml
-			done
+	find $SRCS_DIR -type f -name "tmp_*.$ext" | while IFS= read -r file; do
+		basename="$(basename $file)"
+		for line in $(cat $GLOB_VAR_FILE); do
+			var="$(echo $line | cut -d= -f1)"
+			sed -i '' s/__${var}__/${!var}/g $file
 		done
+	done
 }
 
-function yaml_tmp_delete()
+function tmp_delete()
 {
+	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	shopt -s dotglob
 	find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
-		for yaml in $service_d/*.yaml; do
-			basename="$(basename $yaml)"
-			echo rm -f $service_d/tmp_$basename
+		for file in $service_d/*.$ext; do
+			basename="$(basename $file)"
+			rm -f $service_d/tmp_$basename
 		done
 	done
 }
@@ -397,9 +398,9 @@ function main()
 	perform_actions $@
 }
 
-yaml_tmp_create
-yaml_tmp_insert_variables
-yaml_tmp_delete
+tmp_create yaml
+tmp_insert_variables yaml
+tmp_delete yaml
 exit 0
 
 main $@
