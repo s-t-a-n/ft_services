@@ -16,7 +16,7 @@ spec:
         run: ingress-default-backend
     spec:
       containers:
-         - name: ingress-default-backend
+      - name: ingress-default-backend
         image: gcr.io/google_containers/defaultbackend:1.0
         ports:
         - containerPort: 8080

@@ -1,9 +1,14 @@
-FROM alpine
+FROM alpine:latest
 
-LABEL maintainer Stan Verschuuren <sverschu@student.codam.nl>
+RUN apk update && apk upgrade && apk add vsftpd && rm -rf /var/cache/apk/*
 
-RUN apk --update add vsftpd
+COPY docker-srcs/run-vsftpd.sh /usr/sbin/
+RUN chmod 755 /usr/sbin/run-vsftpd.sh
+
+RUN mv /etc/vsftpd/vsftpd.conf /etc/vsftpd/vsftpd.conf.orig
+COPY docker-srcs/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
 EXPOSE 21
+EXPOSE 21000
 
 CMD ["/usr/sbin/run-vsftpd.sh"]

@@ -358,16 +358,16 @@ function setup_env()
 					mkdir ~/goinfre/minikube
 					ln -s ~/goinfre/minikube ~/.minikube
 				fi
-				logp info "Starting docker..."	
-				open -a Docker
-				while :
-				do
-					if docker version 1>/dev/null 2>&1; then
-						break
-					else
-						sleep 1
-					fi
-				done
+				#logp info "Starting docker..."	
+				#open -a Docker
+				#while :
+				#do
+				#	if docker version 1>/dev/null 2>&1; then
+				#		break
+				#	else
+				#		sleep 1
+				#	fi
+				#done
 			fi
 		;;
 	esac
