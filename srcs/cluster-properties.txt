@@ -1,1 +1,7 @@
-STORAGE="~/goingfre/kub-stor"
+STORAGE="~/goinfre/kub-stor"
+CLUSTER_ADMIN="admin-user"
+METALLB_IP_RANGE="192.168.99.95-192.168.99.105"
+WP_DB_USER=""
+WP_DB_PW=""
+VFTPS_USER=""
+VFTPS_PW=""

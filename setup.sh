@@ -18,8 +18,9 @@ KERNEL="$(uname -s)"
 MINIKUBE_FLAGS=
 ACTION=
 BASEDIR="$(dirname $0)"
-SRCS_DIR=$BASEDIR/srcs
-GLOB_VAR_FILE=$SRCS_DIR/build-variables.txt
+SRC=$BASEDIR/srcs
+CLUSTER_PROPERTIES=$SRC/cluster-properties.txt
+CLUSTER_AUTHENTICATION=$SRC/cluster-authentication.txt
 
 export MINIKUBE_IN_STYLE=false # disable childish emoji
 
@@ -28,7 +29,7 @@ case $KERNEL in
 		MINIKUBE_FLAGS+=--vm-driver=virtualbox
 		;;
 	Linux)
-		#MINIKUBE_FLAGS+=--vm-driver=virtualbox
+		MINIKUBE_FLAGS+=--vm-driver=virtualbox
 		;;
 esac
 
@@ -183,7 +184,7 @@ function tmp_create()
 {
 	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	shopt -s dotglob
-	find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
+	find $SRC/* -prune -type d | while IFS= read -r service_d; do
 		for file in $service_d/*.$ext; do
 			basename="$(basename $file)"
 			cp $file $service_d/tmp_$basename
@@ -193,14 +194,17 @@ function tmp_create()
 
 function tmp_insert_variables()
 {
+	tmp_f=`mktemp`
 	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
-	source $GLOB_VAR_FILE
+	source $CLUSTER_PROPERTIES
 	shopt -s dotglob
-	find $SRCS_DIR -type f -name "tmp_*.$ext" | while IFS= read -r file; do
+	find $SRC -type f -name "tmp_*.$ext" | while IFS= read -r file; do
 		basename="$(basename $file)"
-		for line in $(cat $GLOB_VAR_FILE); do
+		for line in $(cat $CLUSTER_PROPERTIES); do
 			var="$(echo $line | cut -d= -f1)"
-			sed -i '' s/__${var}__/${!var}/g $file
+			if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
+			else							sed -i '' "s|__${var}__|${!var}|g" $file
+			fi
 		done
 	done
 }
@@ -209,7 +213,7 @@ function tmp_delete()
 {
 	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	shopt -s dotglob
-	find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
+	find $SRC/* -prune -type d | while IFS= read -r service_d; do
 		for file in $service_d/*.$ext; do
 			basename="$(basename $file)"
 			rm -f $service_d/tmp_$basename
@@ -246,15 +250,21 @@ function perform_actions()
 		activate)
 			tmp_create yaml
 			tmp_insert_variables yaml
-			kubectl apply -k $SRCS_DIR || logp fatal "Couldn't apply global configmap.."
+			source $CLUSTER_PROPERTIES
+			kubectl apply -k $SRC || logp fatal "Couldn't apply global configmap.."
 			if ! kubectl get serviceaccounts pod-service-access 2>/dev/null 1>&2; then
+				logp info "Creating service account pod-service-access.."
 				kubectl create serviceaccount pod-service-access || logp fatal "Couldn't add global serviceaccount for service listing.."
 			fi
-			kubectl apply -f $SRCS_DIR/pod-service-access-role-binding.yaml || logp fatal "Couldn't apply global service role-binding.."
+			if ! kubectl get serviceaccounts $CLUSTER_ADMIN 2>/dev/null 1>&2; then
+				logp info "Creating service account $CLUSTER_ADMIN.."
+				kubectl create serviceaccount $CLUSTER_ADMIN || logp fatal "Couldn't add global serviceaccount for dashboard.."
+			fi
+			kubectl apply -f $SRC/pod-service-access-role-binding.yaml || logp fatal "Couldn't apply global service role-binding.."
 			shopt -s dotglob
-			find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
+			find $SRC/* -prune -type d | while IFS= read -r service_d; do
 				logp info "Starting $service_d..."
-				sh $service_d/setup.sh
+				sh $service_d/setup.sh || logp fatal "Couln't start $service_d..."
 			done
 		;;
 		post)
@@ -286,7 +296,8 @@ function perform_actions()
 		get)
 			case $2 in
 				admin)
-					kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+					source $CLUSTER_AUTHENTICATION
+					kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep $CLUSTER_ADMIN | awk '{print $1}')
 				;;
 			esac
 		;;

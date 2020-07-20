@@ -1,2 +1,2 @@
-CLUSTER_ADMIN="cluster-admin"
+CLUSTER_ADMIN="admin-user"
 CLUSTER_ADMIN_PW="r3pelsteeltje"

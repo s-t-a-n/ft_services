@@ -58,12 +58,12 @@ spec:
         volumeMounts:
         - name: vsftpd-persistent-storage
           mountPath: /data
-        - name: cluster-authenthication
+        - name: cluster-authentication
           mountPath: /auth
       volumes:
       - name: vsftpd-persistent-storage
         persistentVolumeClaim:
           claimName: vsftpd-pv-claim
-      - name: cluster-authenthication
+      - name: cluster-authentication
         secret:
-          secretName: cluster-authenthication
+          secretName: cluster-authentication

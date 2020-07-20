@@ -9,9 +9,9 @@ generatorOptions:
   annotations:
     note: generated
 secretGenerator:
-- name: cluster-authenthication
+- name: cluster-authentication
   files:
-  - cluster-authenthication.txt
+  - cluster-authentication.txt
 generatorOptions:
   disableNameSuffixHash: true
   labels:
