@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk update && apk upgrade && apk add vsftpd && rm -rf /var/cache/apk/*
+RUN apk update && apk upgrade && apk add vsftpd openssl curl jq && rm -rf /var/cache/apk/*
 
 COPY docker-srcs/run-vsftpd.sh /usr/sbin/
 RUN chmod 755 /usr/sbin/run-vsftpd.sh

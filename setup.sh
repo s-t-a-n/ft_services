@@ -115,6 +115,7 @@ function handle_flags()
 		if [ "${ARG}" == "get" ]; then ACTION="get"; break; fi
 		if [ "${ARG}" == "add" ]; then ACTION="add"; break; fi
 		if [ "${ARG}" == "purge" ]; then ACTION="purge"; break; fi
+		if [ "${ARG}" == "clean" ]; then ACTION="clean"; break; fi
 	done
 	if [ "$ACTION" = "" ]; then
 			logp fatal "No run command specified! (run $0 -h for usage)"
@@ -319,6 +320,18 @@ function perform_actions()
 					sudo rm -rf /var/lib/localkube
 					sudo rm -rf /data/minikube
 					sudo rm -rf /var/lib/kubeadm.yaml
+					return 0
+			esac
+		;;
+		clean)
+			logp info "Cleaning..."
+			case $KERNEL in
+				Darwin)
+					minikube_wrap stop
+					return 0
+				;;
+				Linux)
+					minikube_wrap stop
 					return 0
 			esac
 		;;

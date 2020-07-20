@@ -1,8 +1,8 @@
 #!/bin/sh
 basedir=$(dirname "$0")
 
-kubectl apply -f $basedir/tmp_namespace.yaml
-kubectl apply -f $basedir/tmp_metallb.yaml
+kubectl apply -f $basedir/tmp_namespace.yaml			\
+&& kubectl apply -f $basedir/tmp_metallb.yaml
 
 # On first install only
 if ! kubectl get secrets -n metallb-system memberlist 2>/dev/null 1>&2; then
