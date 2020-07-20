@@ -1,15 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
 VSFTPD_USERLIST="/etc/vsftpd.userlist"
 
 source /auth/*.txt
 
-# API_URL=https://kubernetes
-# TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-# POD_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-# export HOST_IP=$(curl -s $API_URL/api/v1/namespaces/$POD_NAMESPACE/pods/$HOSTNAME --header "Authorization: Bearer $TOKEN" --insecure | jq -r '.status.hostIP')
+IP=
+while [[ ! $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; do
+	IP=$(/usr/sbin/get_ip.sh)
+	sleep 2
+done
 
-sed -i s/__ADDRESS__/${HOSTNAME}/g /etc/vsftpd/vsftpd.conf
+sed -i s/__ADDRESS__/${IP}/g /etc/vsftpd/vsftpd.conf
 
 if ! grep $CLUSTER_ADMIN /etc/passwd 2>/dev/null 1>&2; then
 	adduser $CLUSTER_ADMIN --disabled-password || exit 1
@@ -32,4 +33,6 @@ fi
 /sbin/syslogd &
 
  /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
+
+ tail -f /dev/null # remove when ready
  

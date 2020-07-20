@@ -247,6 +247,10 @@ function perform_actions()
 			tmp_create yaml
 			tmp_insert_variables yaml
 			kubectl apply -k $SRCS_DIR || logp fatal "Couldn't apply global configmap.."
+			if ! kubectl get serviceaccounts pod-service-access 2>/dev/null 1>&2; then
+				kubectl create serviceaccount pod-service-access || logp fatal "Couldn't add global serviceaccount for service listing.."
+			fi
+			kubectl apply -f $SRCS_DIR/pod-service-access-role-binding.yaml || logp fatal "Couldn't apply global service role-binding.."
 			shopt -s dotglob
 			find $SRCS_DIR/* -prune -type d | while IFS= read -r service_d; do
 				logp info "Starting $service_d..."
@@ -327,11 +331,11 @@ function perform_actions()
 			logp info "Cleaning..."
 			case $KERNEL in
 				Darwin)
-					minikube_wrap stop
+					minikube_wrap delete
 					return 0
 				;;
 				Linux)
-					minikube_wrap stop
+					minikube_wrap delete
 					return 0
 			esac
 		;;
@@ -404,7 +408,23 @@ function minikube_wrap()
 				return $?
 			fi
 		;;
+		delete)
+			minikube delete
+		;;
 	esac
+}
+
+function zsh_insert_functions()
+{
+cat << EOF >> ~/.zshrc
+# Kubernetes
+function klogs() {
+	kubectl logs $(kubectl get pods | grep "$1" | grep -v "Terminating" | awk '{print $1}')
+}
+function kattach() {
+	kubectl exec -it $(kubectl get pods | grep "$1" | grep -v "Terminating" | awk '{print $1}') -- sh
+}
+EOF
 }
 
 function main()
@@ -415,3 +435,5 @@ function main()
 	perform_actions $@
 }
 main $@
+
+

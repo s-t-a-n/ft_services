@@ -45,6 +45,7 @@ spec:
       labels:
         app: vsftpd
     spec:
+      serviceAccount: pod-service-access
       containers:
       - image: vsftpd-alpine:v1
         imagePullPolicy: Never
