@@ -14,9 +14,10 @@ TOKEN=$(cat ${SERVICEACCOUNT}/token)
 # Reference the internal certificate authority (CA)
 CACERT=${SERVICEACCOUNT}/ca.crt
 
+# Read the hostname and assume it points to the service name
 SERVICE=$(echo $HOSTNAME | cut -d- -f1)
 
 # Explore the API with TOKEN
 curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${APISERVER}/api/v1/namespaces/$NAMESPACE/services/$SERVICE/ 2>/dev/null| jq -r '.status | .loadBalancer | .ingress | .[] | .ip'
 
-return $?
+exit $?

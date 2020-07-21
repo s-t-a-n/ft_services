@@ -6,8 +6,8 @@ trap "rm -rf $basedir/docker-srcs/global_container_scripts && rm -rf $basedir/do
 
 while [ ! "$(kubectl get pods --all-namespaces | grep cert-manager | grep Running | wc -l | xargs)" = "3" ]; do
     sleep 1
+	if [ $? -gt 128 ]; then break; fi
 done
-
 cp -r $basedir/../global_container_scripts $basedir/docker-srcs/	\
 && cp -r $basedir/../global_container_confs $basedir/docker-srcs/	\
 && kubectl apply -f $basedir/tmp_build-env-configmap.yaml			\
