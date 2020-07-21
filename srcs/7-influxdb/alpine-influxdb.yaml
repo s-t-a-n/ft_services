@@ -60,10 +60,6 @@ spec:
           mountPath: /data
         - name: cluster-authentication
           mountPath: /auth
-        - name: varlog
-          mountPath: /var/log
-        - name: certificate
-          mountPath: /cert
       volumes:
       - name: vsftpd-persistent-storage
         persistentVolumeClaim:
@@ -71,8 +67,3 @@ spec:
       - name: cluster-authentication
         secret:
           secretName: cluster-authentication
-      - name: certificate
-        secret:
-          secretName: vsftpd-cert
-      - name: varlog
-        emptyDir: {}

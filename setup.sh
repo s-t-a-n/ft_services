@@ -185,10 +185,12 @@ function tmp_create()
 	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	shopt -s dotglob
 	find $SRC/* -prune -type d | while IFS= read -r service_d; do
-		for file in $service_d/*.$ext; do
-			basename="$(basename $file)"
-			cp $file $service_d/tmp_$basename
-		done
+		if [[ $(basename $service_d) =~ ^[0-9] ]]; then
+			for file in $service_d/*.$ext; do
+				basename="$(basename $file)"
+				cp $file $service_d/tmp_$basename
+			done
+		fi
 	done
 }
 
@@ -214,10 +216,12 @@ function tmp_delete()
 	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	shopt -s dotglob
 	find $SRC/* -prune -type d | while IFS= read -r service_d; do
-		for file in $service_d/*.$ext; do
-			basename="$(basename $file)"
-			rm -f $service_d/tmp_$basename
-		done
+		if [[ $(basename $service_d) =~ ^[0-9] ]]; then
+			for file in $service_d/*.$ext; do
+				basename="$(basename $file)"
+				rm -f $service_d/tmp_$basename
+			done
+		fi
 	done
 }
 
@@ -263,8 +267,10 @@ function perform_actions()
 			kubectl apply -f $SRC/pod-service-access-role-binding.yaml || logp fatal "Couldn't apply global service role-binding.."
 			shopt -s dotglob
 			find $SRC/* -prune -type d | while IFS= read -r service_d; do
-				logp info "Starting $service_d..."
-				sh $service_d/setup.sh || logp fatal "Couln't start $service_d..."
+				if [ "$2" = "" ] || [ "$2" = "$(basename $service_d | cut -f2 -d-)" ]; then
+					logp info "Starting $service_d..."
+					sh $service_d/setup.sh || logp fatal "Couln't start $service_d..."
+				fi
 			done
 		;;
 		post)
