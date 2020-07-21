@@ -30,9 +30,9 @@ if [ ! -f /etc/ssl/private/vsftpd.pem ]; then
 	openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout /etc/ssl/private/vsftpd.pem -subj "/C=NL/ST=Test/L=Test/O=Test/CN=vsftpd" -out /etc/ssl/private/vsftpd.pem || exit 1
 fi
 
-/sbin/syslogd &
+/sbin/syslogd & # remove when ready
 
- /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
+/usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
 
- tail -f /dev/null # remove when ready
+tail -f /dev/null # remove when ready
  
