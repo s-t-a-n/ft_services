@@ -24,6 +24,9 @@ COPY $DOCKER_SRC/services.conf /etc/supervisord/conf.d
 RUN mv /etc/vsftpd/vsftpd.conf /etc/vsftpd/vsftpd.conf.orig
 COPY $DOCKER_SRC/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
+COPY $GLOB_CONT_SCRIPTS/supervisor-kill.sh /usr/sbin/
+RUN chmod 755 /usr/sbin/supervisor-kill.sh
+
 RUN ssh-keygen -A
 
 EXPOSE 21

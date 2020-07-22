@@ -8,6 +8,7 @@ while [ ! "$(kubectl get pods --all-namespaces | grep cert-manager | grep Runnin
     sleep 1
 	if [ $? -gt 128 ]; then break; fi
 done
+sleep 2 # wait for cert-manager to fully start
 cp -r $basedir/../global_container_scripts $basedir/docker-srcs/	\
 && cp -r $basedir/../global_container_confs $basedir/docker-srcs/	\
 && kubectl apply -f $basedir/tmp_build-env-configmap.yaml			\
