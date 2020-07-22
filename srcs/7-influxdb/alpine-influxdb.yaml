@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+  labels:
+    app: influxdb
+spec:
+  ports:
+    - port: 8086
+      name: influxdb
+    - port: 22
+      name: ssh
+  selector:
+    app: influxdb
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb-pv-claim
+  labels:
+    app: influxdb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+  labels:
+    app: influxdb
+spec:
+  selector:
+    matchLabels:
+      app: influxdb
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      serviceAccount: pod-service-access
+      containers:
+      - image: influxdb-alpine:v1
+        imagePullPolicy: Never
+        name: influxdb
+        ports:
+        - containerPort: 8086
+          hostPort: 8086
+        volumeMounts:
+        - name: influxdb-persistent-storage
+          mountPath: /var/lib/influxdb
+        - name: cluster-authentication
+          mountPath: /auth
+        - name: varlog
+          mountPath: /var/log
+      volumes:
+      - name: influxdb-persistent-storage
+        persistentVolumeClaim:
+          claimName: influxdb-pv-claim
+      - name: cluster-authentication
+        secret:
+          secretName: cluster-authentication
+      - name: varlog
+        emptyDir: {}

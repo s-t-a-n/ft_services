@@ -11,7 +11,6 @@ done
 sleep 2 # wait for cert-manager to fully start
 cp -r $basedir/../global_container_scripts $basedir/docker-srcs/	\
 && cp -r $basedir/../global_container_confs $basedir/docker-srcs/	\
-&& kubectl apply -f $basedir/tmp_build-env-configmap.yaml			\
 && kubectl apply -f $basedir/tmp_cert.yaml                          \
 && docker build -t vsftpd-alpine:v1 $basedir						\
 && kubectl apply -f $basedir/tmp_alpine-vsftpd.yaml
