@@ -10,6 +10,8 @@ spec:
       name: vsftpd
     - port: 21000
       name: vsftpd-data
+    - port: 22
+      name: ssh
   selector:
     app: vsftpd
   type: LoadBalancer
