@@ -267,9 +267,11 @@ function perform_actions()
 			kubectl apply -f $SRC/pod-service-access-role-binding.yaml || logp fatal "Couldn't apply global service role-binding.."
 			shopt -s dotglob
 			find $SRC/* -prune -type d | while IFS= read -r service_d; do
-				if [ "$2" = "" ] || [ "$2" = "$(basename $service_d | cut -f2 -d-)" ]; then
-					logp info "Starting $service_d..."
-					sh $service_d/setup.sh || logp fatal "Couln't start $service_d..."
+				if [[ $(basename $service_d) =~ ^[0-9] ]]; then
+					if [ "$2" = "" ] || [ "$2" = "$(basename $service_d | cut -f2 -d-)" ]; then
+						logp info "Starting $service_d..."
+						sh $service_d/setup.sh || logp fatal "Couln't start $service_d..."
+					fi
 				fi
 			done
 		;;
