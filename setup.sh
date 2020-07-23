@@ -21,10 +21,12 @@ BASEDIR="$(dirname $0)"
 SRC=$BASEDIR/srcs
 OBJ=$BASEDIR/obj
 
-CLUSTER_PROPS=$SRC/cluster-properties.txt
-CLUSTER_AUTH=$SRC/cluster-authentication.txt
+CLUSTER_PROPERTIES=$SRC/cluster-properties.txt
+CLUSTER_DYNAMICS=$SRC/cluster-dynamics.txt
+CLUSTER_AUTHENTICATION=$SRC/cluster-authentication.txt
 
 export MINIKUBE_IN_STYLE=false # disable childish emoji
+source $CLUSTER_DYNAMICS # immediately source for runtime addition of properties
 
 case $KERNEL in
 	Darwin)
@@ -195,19 +197,19 @@ function tmp_insert_variables()
 {
 	if [ ! -d $1 ]; then logp fatal "tmp_insert_variables expects a working directory as argument"; fi;
 	logp info_nnl "Inserting variables in working directory... "
-	source $CLUSTER_PROPS
-	source $CLUSTER_AUTH
+	source $CLUSTER_PROPERTIES
+	source $CLUSTER_AUTHENTICATION
 	shopt -s dotglob
 	find $1 -type f | while IFS= read -r file; do
 		if [ "$(echo $file | grep .swp)" = "" ]; then
 			basename="$(basename $file)"
-			for line in $(cat $CLUSTER_PROPS); do
+			for line in $(cat $CLUSTER_PROPERTIES); do
 				var="$(echo $line | cut -d= -f1)"
 				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
 				else							sed -i '' "s|__${var}__|${!var}|g" $file
 				fi
 			done
-			for line in $(cat $CLUSTER_AUTH); do
+			for line in $(cat $CLUSTER_AUTHENTICATION); do
 				var="$(echo $line | cut -d= -f1)"
 				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
 				else							sed -i '' "s|__${var}__|${!var}|g" $file
@@ -259,7 +261,7 @@ function perform_actions()
 		activate)
 			tmp_create $SRC $OBJ
 			tmp_insert_variables $OBJ
-			source $CLUSTER_PROPS
+			source $CLUSTER_PROPERTIES
 			
 			logp info "Applying global configmap.."
 			kubectl apply -k $OBJ || logp fatal "Couldn't apply global configmap.."
@@ -328,7 +330,7 @@ function perform_actions()
 		get)
 			case $2 in
 				admin)
-					source $CLUSTER_AUTH
+					source $CLUSTER_AUTHENTICATION
 					kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep $CLUSTER_ADMIN | awk '{print $1}')
 				;;
 			esac

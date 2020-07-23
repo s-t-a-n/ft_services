@@ -1,0 +1,4 @@
+# mariadb
+export MD_DB_TABLE="("
+export MD_USER_TABLE="("
+export MD_PW_TABLE="("
