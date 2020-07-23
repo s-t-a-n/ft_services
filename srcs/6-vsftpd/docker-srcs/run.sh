@@ -2,8 +2,6 @@
 
 VSFTPD_USERLIST="/etc/vsftpd.userlist"
 
-source /auth/*.txt
-
 IP=
 while [[ ! $IP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; do
 	IP=$(/usr/sbin/get_ip.sh)

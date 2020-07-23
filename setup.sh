@@ -19,8 +19,10 @@ MINIKUBE_FLAGS=
 ACTION=
 BASEDIR="$(dirname $0)"
 SRC=$BASEDIR/srcs
-CLUSTER_PROPERTIES=$SRC/cluster-properties.txt
-CLUSTER_AUTHENTICATION=$SRC/cluster-authentication.txt
+OBJ=$BASEDIR/obj
+
+CLUSTER_PROPS=$SRC/cluster-properties.txt
+CLUSTER_AUTH=$SRC/cluster-authentication.txt
 
 export MINIKUBE_IN_STYLE=false # disable childish emoji
 
@@ -42,10 +44,8 @@ function clean_up()
 			logp fatal "aborting.."
 		;;
 		EXIT)
-			tmp_delete yaml
-			tmp_delete Dockerfile
-			tmp_delete sh
-			#logp endsection
+			tmp_delete $OBJ
+			logp endsection
 		;;
 		TERM)
 			logp fatal "aborting.."
@@ -87,13 +87,39 @@ function logp()
 	esac
 }
 
+function klogs() {
+	kubectl logs $(kubectl get pods | grep "$1" | grep -v "Terminating" | awk '{print $1}') || logp fatal "Couldn't provide logs for $1!"
+}
+function kattach() {
+	kubectl exec -it $(kubectl get pods | grep "$1" | grep -v "Terminating" | awk '{print $1}') -- sh || logp fatal "Failed to attach to $1!"
+}
+
+function kdelete() {
+	kubectl delete deployment $1; kubectl delete service $1; sleep 2; kubectl delete pod $(kubectl get pods | grep "$1" |  awk '{print $1}') --grace-period=0 --force || logp warning "Couldn't delete deployment/pod/service $1!"
+}
+
+function ft_services()
+{
+	# source : https://stackoverflow.com/questions/10551981/how-to-perform-a-for-loop-on-each-character-in-a-string-in-bash
+	foo="ft-services"
+	for (( i=0; i<${#foo}; i++ )); do
+		clear
+		l="${foo:$i:1}"
+		zsh -c "banner $l"
+		sleep 0.1
+	done
+	clear
+}
+
 function banner()
 {
-clear
-zsh -c "echo -e \"\e[31m\e[1m\"
-cat<<EOF
-EOF"
-#logp beginsection
+	clear
+	printf "\e[1m\e[33m+-------------------------------------------------------------------------------------------+\n"
+	printf "\e[1m\e[33m| \e[0m%-89s\e[1m\e[33m |\n" "`date`"
+	printf "\e[1m\e[33m| %-89s\e[1m\e[33m |\n" ""
+	printf "|\e[0m`tput bold` %-89s `tput sgr0`\e[1m\e[33m|\n" "ft_services @ $HOSTNAME"
+	printf "\e[1m\e[33m+-------------------------------------------------------------------------------------------+\n"
+	logp beginsection	
 }
 
 function usage()
@@ -111,8 +137,8 @@ function handle_flags()
 	do
 		if [ "${ARG}" == "start" ]; then ACTION="start"; break; fi
 		if [ "${ARG}" == "activate" ]; then ACTION="activate"; break; fi
+		if [ "${ARG}" == "launch" ]; then ACTION="launch"; break; fi
 		if [ "${ARG}" == "post" ]; then ACTION="post"; break; fi
-		if [ "${ARG}" == "update" ]; then ACTION="update"; break; fi
 		if [ "${ARG}" == "stop" ]; then ACTION="stop"; break; fi
 		if [ "${ARG}" == "get" ]; then ACTION="get"; break; fi
 		if [ "${ARG}" == "add" ]; then ACTION="add"; break; fi
@@ -154,76 +180,54 @@ function handle_flags()
 	shift $((OPTIND-1))
 }
 
-function file_update()
-{
-	source $1
-	basedir=$(dirname "$1")
-	i=0
-	for src in ${srcs[@]}; do
-		name=${names[i]}; i=$((i + 1))
-		wget -O $basedir/$name.yaml.new $src 1>/dev/null 2>&1 || return 1
-		if ! diff $basedir/$name.yaml $basedir/$name.yaml.new 1>/dev/null; then
-			echo;logp warning_nnl "New version for $name.. continue and show diff? y/n : "; read yn </dev/tty
-			if [ "$yn" == "y" ] || [ "$yn" == "Y" ]; then
-				diff $basedir/$name.yaml $basedir/$name.yaml.new
-				echo;logp warning_nnl "Continue update? y/n : "; read yn </dev/tty; echo
-				if [ "$yn" == "y" ] || [ "$yn" == "Y" ]; then
-					mv $basedir/$name.yaml.new $basedir/$name.yaml && rm -f $basedir/$name.yaml.new
-				else
-					rm -f $basedir/$name.yaml.new
-				fi
-			fi
-		else
-			printf "No update available for $name. "
-			rm -f $basedir/$name.yaml.new
-		fi
-	done
-	echo
-}
-
 function tmp_create()
 {
-	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
-	shopt -s dotglob
-	find $SRC/* -prune -type d | while IFS= read -r service_d; do
-		if [[ $(basename $service_d) =~ ^[0-9] ]]; then
-			for file in $service_d/*$ext; do
-				basename="$(basename $file)"
-				cp $file $service_d/tmp_$basename
-			done
-		fi
-	done
+	logp info_nnl "Setting up working directory for variable insertion... "
+	if [ ! -d $1 ] || [ -d $2 ]; then
+		logp fatal "tmp_create expects a src and empty dst directory."
+	else
+		cp -r $1 $2
+	fi
+	echo "done!"
 }
 
 function tmp_insert_variables()
 {
-	tmp_f=`mktemp`
-	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
-	source $CLUSTER_PROPERTIES
+	if [ ! -d $1 ]; then logp fatal "tmp_insert_variables expects a working directory as argument"; fi;
+	logp info_nnl "Inserting variables in working directory... "
+	source $CLUSTER_PROPS
+	source $CLUSTER_AUTH
 	shopt -s dotglob
-	find $SRC -type f -name "tmp_*$ext" | while IFS= read -r file; do
-		basename="$(basename $file)"
-		for line in $(cat $CLUSTER_PROPERTIES); do
-			var="$(echo $line | cut -d= -f1)"
-			if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
-			else							sed -i '' "s|__${var}__|${!var}|g" $file
-			fi
-		done
+	find $1 -type f | while IFS= read -r file; do
+		if [ "$(echo $file | grep .swp)" = "" ]; then
+			basename="$(basename $file)"
+			for line in $(cat $CLUSTER_PROPS); do
+				var="$(echo $line | cut -d= -f1)"
+				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
+				else							sed -i '' "s|__${var}__|${!var}|g" $file
+				fi
+			done
+			for line in $(cat $CLUSTER_AUTH); do
+				var="$(echo $line | cut -d= -f1)"
+				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
+				else							sed -i '' "s|__${var}__|${!var}|g" $file
+				fi
+			done
+		fi
 	done
+	echo "done!"
 }
 
 function tmp_delete()
 {
-	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
-	shopt -s dotglob
-	find $SRC/* -prune -type d | while IFS= read -r service_d; do
-		if [[ $(basename $service_d) =~ ^[0-9] ]]; then
-			for file in $service_d/*$ext; do
-				basename="$(basename $file)"
-				rm -f $service_d/tmp_$basename
-			done
-		fi
-	done
+	logp info_nnl "Clearing out working directory... "
+	if [ ! -d $1 ]; then
+		echo  "N.A.";
+		return
+	else
+		rm -rf $1
+	fi
+	echo "done!"
 }
 
 function wireguard_add_peer()
@@ -253,15 +257,12 @@ function perform_actions()
 {
 	case $ACTION in
 		activate)
-			tmp_create .yaml
-			tmp_create Dockerfile
-			tmp_create .sh
-			tmp_insert_variables .yaml
-			tmp_insert_variables Dockerfile
-			tmp_insert_variables .sh
-
-			source $CLUSTER_PROPERTIES
-			kubectl apply -k $SRC || logp fatal "Couldn't apply global configmap.."
+			tmp_create $SRC $OBJ
+			tmp_insert_variables $OBJ
+			source $CLUSTER_PROPS
+			
+			logp info "Applying global configmap.."
+			kubectl apply -k $OBJ || logp fatal "Couldn't apply global configmap.."
 			if ! kubectl get serviceaccounts pod-service-access 2>/dev/null 1>&2; then
 				logp info "Creating service account pod-service-access.."
 				kubectl create serviceaccount pod-service-access || logp fatal "Couldn't add global serviceaccount for service listing.."
@@ -270,9 +271,9 @@ function perform_actions()
 				logp info "Creating service account $CLUSTER_ADMIN.."
 				kubectl create serviceaccount $CLUSTER_ADMIN || logp fatal "Couldn't add global serviceaccount for dashboard.."
 			fi
-			kubectl apply -f $SRC/pod-service-access-role-binding.yaml || logp fatal "Couldn't apply global service role-binding.."
+			kubectl apply -f $OBJ/pod-service-access-role-binding.yaml || logp fatal "Couldn't apply global service role-binding.."
 			shopt -s dotglob
-			find $SRC/* -prune -type d | while IFS= read -r service_d; do
+			find $OBJ/* -prune -type d | while IFS= read -r service_d; do
 				if [[ $(basename $service_d) =~ ^[0-9] ]]; then
 					if [ "$2" = "" ] || [ "$2" = "$(basename $service_d | cut -f2 -d-)" ]; then
 						logp info "Starting $service_d..."
@@ -280,40 +281,58 @@ function perform_actions()
 					fi
 				fi
 			done
+			return $?
 		;;
 		post)
-			find $SRC_DIR/* -prune -type d | while IFS= read -r service_d; do
+			find $OBJ/* -prune -type d | while IFS= read -r service_d; do
 				if [ -f $service_d/post.sh ]; then
 					logp info "Running postscript for $service_d..."
 					sh $service_d/post.sh
 				fi
 			done
+			return $?
+		;;
+		launch)
+			ACTION=start perform_actions
+			ACTION=activate perform_actions
+			return $?
 		;;
 		start)
-			logp info "Starting..."
-			setup_env
-			minikube_wrap start
+			logp info "Firing up cluster..."
+			case $KERNEL in
+				Darwin)
+					setup_env
+					minikube_wrap start
+					return $?
+				;;
+				Linux)
+					return $?
+				;;
+			esac
 			return $?
 		;;
 		stop)
-			logp info "Stopping..."
-			minikube_wrap stop
+			logp info "Stopping all cluster activity..."
+			case $KERNEL in
+				Darwin)
+					setup_env
+					minikube_wrap stop
+					return $?
+				;;
+				Linux)
+					return $?
+				;;
+			esac
 			return $?
-		;;
-		update)
-			shopt -s dotglob
-			find $SRC_DIR/* -prune -type d | while IFS= read -r service_d; do
-				logp info_nnl "Checking for updates for $service_d..."
-				file_update $service_d/update.sh
-			done
 		;;
 		get)
 			case $2 in
 				admin)
-					source $CLUSTER_AUTHENTICATION
+					source $CLUSTER_AUTH
 					kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep $CLUSTER_ADMIN | awk '{print $1}')
 				;;
 			esac
+			return $?
 		;;
 		add)
 			case $2 in
@@ -322,16 +341,16 @@ function perform_actions()
 					wireguard_add_peer $3 $4
 				;;
 			esac
+			return $?
 		;;
 		purge)
 			logp info "Purging..."
 			case $KERNEL in
 				Darwin)
-					minikube_wrap stop
-					minikube delete
+					rm -rf ~/.minikube && minikube delete
 					rm -rf ~/goinfre/minikube
 					rm -rf ~/goinfre/docker
-					VBoxManage controlvm "minikube" poweroffip 2>/dev/null 
+					VBoxManage controlvm "minikube" poweroff 2>/dev/null 
 					VBoxManage unregistervm --delete "minikube" 2>/dev/null
 					return 0
 				;;
@@ -340,7 +359,7 @@ function perform_actions()
 					rm -rf ~/.minikube
 					rm -rf ~/.docker
 					rm -rf ~/.kube
-					VBoxManage controlvm "minikube" poweroffip
+					VBoxManage controlvm "minikube" poweroff
 					VBoxManage unregistervm --delete "minikube"
 					minikube delete
 					sudo kubeadm reset
@@ -351,6 +370,7 @@ function perform_actions()
 					sudo rm -rf /var/lib/kubeadm.yaml
 					return 0
 			esac
+			return $?
 		;;
 		clean)
 			logp info "Cleaning..."
@@ -363,6 +383,7 @@ function perform_actions()
 					minikube_wrap delete
 					return 0
 			esac
+			return $?
 		;;
 	esac
 }
@@ -454,11 +475,10 @@ EOF
 
 function main()
 {
-	#banner
+	banner
 	check_env
 	handle_flags $@
 	perform_actions $@
 }
+
 main $@
-
-

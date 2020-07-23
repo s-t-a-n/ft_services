@@ -53,19 +53,24 @@ spec:
         ports:
         - containerPort: 3000
           hostPort: 3000
+        readinessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
         volumeMounts:
         - name: grafana-persistent-storage
           mountPath: /var/lib/grafana
-        - name: cluster-authentication
-          mountPath: /auth
         - name: varlog
           mountPath: /var/log
       volumes:
       - name: grafana-persistent-storage
         persistentVolumeClaim:
           claimName: grafana-pv-claim
-      - name: cluster-authentication
-        secret:
-          secretName: cluster-authentication
       - name: varlog
         emptyDir: {}

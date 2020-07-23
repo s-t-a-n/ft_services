@@ -7,7 +7,8 @@ trap "rm -rf $basedir/docker-srcs/global_container_scripts && rm -rf $basedir/do
 
 cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
 && cp -r $basedir/../global_container_confs $basedir/docker-srcs/			\
-&& docker build -f $basedir/Dockerfile -t grafana-alpine:v1 $basedir		\
-&& kubectl apply -f $basedir/alpine-grafana.yaml
+&& kubectl apply -k $basedir												\
+&& docker build -f $basedir/Dockerfile -t mariadb-alpine:v1 $basedir		\
+&& kubectl apply -f $basedir/alpine-mariadb.yaml
 
 exit $?

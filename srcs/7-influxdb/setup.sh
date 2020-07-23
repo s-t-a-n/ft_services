@@ -4,9 +4,9 @@ eval $(minikube docker-env)
 
 trap "rm -rf $basedir/docker-srcs/global_container_scripts && rm -rf $basedir/docker-srcs/global_container_confs" EXIT INT
 
-cp -r $basedir/../global_container_scripts $basedir/docker-srcs/	\
-&& cp -r $basedir/../global_container_confs $basedir/docker-srcs/	\
-&& docker build -f tmp_Dockerfile -t influxdb-alpine:v1 $basedir	\
-&& kubectl apply -f $basedir/tmp_alpine-influxdb.yaml
+cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
+&& cp -r $basedir/../global_container_confs $basedir/docker-srcs/			\
+&& docker build -f $basedir/Dockerfile -t influxdb-alpine:v1 $basedir	\
+&& kubectl apply -f $basedir/alpine-influxdb.yaml
 
 exit $?

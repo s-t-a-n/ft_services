@@ -1,8 +1,8 @@
 FROM alpine:latest
 
-ENV NAME="influxdb"
+ENV NAME="mariadb"
 
-ENV PACKAGES="supervisor openssh influxdb"
+ENV PACKAGES="supervisor openssh mariadb mariadb-client"
 
 ENV DOCKER_SRC="docker-srcs"
 ENV GLOB_CONT_SCRIPTS="$DOCKER_SRC/global_container_scripts"
@@ -10,8 +10,16 @@ ENV GLOB_CONT_CONFS="$DOCKER_SRC/global_container_confs"
 
 RUN apk update && apk upgrade && apk add $PACKAGES && rm -rf /var/cache/apk/*
 
-RUN mv /etc/influxdb.conf /etc/influxdb.conf.orig
-COPY $DOCKER_SRC/influxdb.conf /etc/influxdb.conf
+COPY $DOCKER_SRC/my.cnf /etc/my.cnf.d/
+
+RUN touch /usr/share/mariadb/mysql_test_db.sql && \
+    # allow anyone to connect by default
+    sed -i -e 's/127.0.0.1/%/' /usr/share/mariadb/mysql_system_tables_data.sql && \
+    mkdir /run/mysqld && \
+    chown mysql:mysql /etc/my.cnf.d/ /run/mysqld /usr/share/mariadb/mysql_system_tables_data.sql
+
+COPY $DOCKER_SRC/mysqld_wrapper.sh /usr/sbin/
+RUN chmod 755 /usr/sbin/mysqld_wrapper.sh
 
 # UNIVERSAL #
 COPY $DOCKER_SRC/run.sh /usr/sbin/
@@ -39,4 +47,4 @@ EXPOSE 22
 CMD ["/usr/sbin/run.sh"]
 #! UNIVERSAL #
 
-EXPOSE 8086
+EXPOSE 3306

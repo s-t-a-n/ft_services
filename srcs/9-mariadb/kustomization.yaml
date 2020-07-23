@@ -1,0 +1,10 @@
+secretGenerator:
+- name: mariadb-secrets
+  files:
+  - mariadb-secrets.txt
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+  annotations:
+    note: generated

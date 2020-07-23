@@ -1,9 +1,9 @@
 #!/bin/sh
 basedir=$(dirname "$0")
 
-kubectl apply -f $basedir/tmp_haproxy-ingress.yaml				\
-&& kubectl apply -f $basedir/tmp_cluster-role-binding.yaml		\
-&& kubectl apply -f $basedir/tmp_default-backend.yaml			\
-&& kubectl apply -f $basedir/tmp_haproxy-configmap.yaml			\
+kubectl apply -f $basedir/haproxy-ingress.yaml				\
+&& kubectl apply -f $basedir/cluster-role-binding.yaml		\
+&& kubectl apply -f $basedir/default-backend.yaml			\
+&& kubectl apply -f $basedir/haproxy-configmap.yaml			\
 
 exit $?

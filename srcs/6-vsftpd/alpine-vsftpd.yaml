@@ -57,11 +57,19 @@ spec:
           hostPort: 21
         - containerPort: 21000
           hostPort: 21000
+        readinessProbe:
+          tcpSocket:
+            port: 21
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 21
+          initialDelaySeconds: 15
+          periodSeconds: 20
         volumeMounts:
         - name: vsftpd-persistent-storage
           mountPath: /data
-        - name: cluster-authentication
-          mountPath: /auth
         - name: varlog
           mountPath: /var/log
         - name: certificate
@@ -70,9 +78,6 @@ spec:
       - name: vsftpd-persistent-storage
         persistentVolumeClaim:
           claimName: vsftpd-pv-claim
-      - name: cluster-authentication
-        secret:
-          secretName: cluster-authentication
       - name: certificate
         secret:
           secretName: vsftpd-cert
