@@ -43,6 +43,7 @@ function clean_up()
 		;;
 		EXIT)
 			tmp_delete yaml
+			tmp_delete Dockerfile
 			tmp_delete sh
 			#logp endsection
 		;;
@@ -186,7 +187,7 @@ function tmp_create()
 	shopt -s dotglob
 	find $SRC/* -prune -type d | while IFS= read -r service_d; do
 		if [[ $(basename $service_d) =~ ^[0-9] ]]; then
-			for file in $service_d/*.$ext; do
+			for file in $service_d/*$ext; do
 				basename="$(basename $file)"
 				cp $file $service_d/tmp_$basename
 			done
@@ -200,7 +201,7 @@ function tmp_insert_variables()
 	if [ "$1" = "" ]; then logp fatal "expecting extension."; fi; ext=$1
 	source $CLUSTER_PROPERTIES
 	shopt -s dotglob
-	find $SRC -type f -name "tmp_*.$ext" | while IFS= read -r file; do
+	find $SRC -type f -name "tmp_*$ext" | while IFS= read -r file; do
 		basename="$(basename $file)"
 		for line in $(cat $CLUSTER_PROPERTIES); do
 			var="$(echo $line | cut -d= -f1)"
@@ -217,7 +218,7 @@ function tmp_delete()
 	shopt -s dotglob
 	find $SRC/* -prune -type d | while IFS= read -r service_d; do
 		if [[ $(basename $service_d) =~ ^[0-9] ]]; then
-			for file in $service_d/*.$ext; do
+			for file in $service_d/*$ext; do
 				basename="$(basename $file)"
 				rm -f $service_d/tmp_$basename
 			done
@@ -252,8 +253,13 @@ function perform_actions()
 {
 	case $ACTION in
 		activate)
-			tmp_create yaml
-			tmp_insert_variables yaml
+			tmp_create .yaml
+			tmp_create Dockerfile
+			tmp_create .sh
+			tmp_insert_variables .yaml
+			tmp_insert_variables Dockerfile
+			tmp_insert_variables .sh
+
 			source $CLUSTER_PROPERTIES
 			kubectl apply -k $SRC || logp fatal "Couldn't apply global configmap.."
 			if ! kubectl get serviceaccounts pod-service-access 2>/dev/null 1>&2; then

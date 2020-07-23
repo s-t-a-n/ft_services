@@ -12,26 +12,9 @@ done
 
 sed -i s/__ADDRESS__/${IP}/g /etc/vsftpd/vsftpd.conf
 
-if ! grep $CLUSTER_ADMIN /etc/passwd 2>/dev/null 1>&2; then
-	adduser $CLUSTER_ADMIN --disabled-password || exit 1
-	echo "$CLUSTER_ADMIN:$CLUSTER_ADMIN_PW" | chpasswd || exit 1
-fi
-
-if [ ! -d /data/$CLUSTER_ADMIN ]; then
-	mkdir -p /data/$CLUSTER_ADMIN || exit 1
-	chown $CLUSTER_ADMIN:$CLUSTER_ADMIN /data/$CLUSTER_ADMIN || exit 1
-fi
-
-if ! grep $CLUSTER_ADMIN $VSFTPD_USERLIST 2>/dev/null 1>&2; then
-	echo $CLUSTER_ADMIN >> $VSFTPD_USERLIST || exit 1
-fi
-
-if ! -d /home/$CLUSTER_ADMIN; then
-	mkdir -p /home/$CLUSTER_ADMIN/.ssh || exit  1
-	chmod 700 /home/$CLUSTER_ADMIN/.ssh/ || exit 1
-	echo "$CLUSTER_ADMIN_SSHPUB" > /home/$CLUSTER_ADMIN/.ssh/authorized_keys || exit 1
-	chmod 500 /home/$CLUSTER_ADMIN/.ssh/authorized_keys || exit 1
-	chown -R $CLUSTER_ADMIN:$CLUSTER_ADMIN /home/$CLUSTER_ADMIN/ || exit 1
+if [ ! -d /data/__CLUSTER_ADMIN__ ]; then
+	mkdir -p /data/__CLUSTER_ADMIN__ || exit 1
+	chown __CLUSTER_ADMIN__:__CLUSTER_ADMIN__ /data/__CLUSTER_ADMIN__ || exit 1
 fi
 
 rm -f /etc/motd

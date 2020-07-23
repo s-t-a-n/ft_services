@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  ports:
+    - port: 3000
+      name: grafana
+    - port: 22
+      name: ssh
+  selector:
+    app: grafana
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pv-claim
+  labels:
+    app: grafana
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      serviceAccount: pod-service-access
+      containers:
+      - image: grafana-alpine:v1
+        imagePullPolicy: Never
+        name: grafana
+        ports:
+        - containerPort: 3000
+          hostPort: 3000
+        volumeMounts:
+        - name: grafana-persistent-storage
+          mountPath: /var/lib/grafana
+        - name: cluster-authentication
+          mountPath: /auth
+        - name: varlog
+          mountPath: /var/log
+      volumes:
+      - name: grafana-persistent-storage
+        persistentVolumeClaim:
+          claimName: grafana-pv-claim
+      - name: cluster-authentication
+        secret:
+          secretName: cluster-authentication
+      - name: varlog
+        emptyDir: {}
