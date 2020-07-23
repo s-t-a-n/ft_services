@@ -15,9 +15,9 @@ if [ ${#MD_DB_TABLE[@]} != ${#MD_PW_TABLE[@]} ] || [ ${#MD_DB_TABLE[@]} != ${#MD
 	logp fatal "Couldn't finalize dynamic variables for mariadab -> not all variables are set!"
 fi
 
-MD_DB_TABLE="$MD_DB_TABLE )"
-MD_USER_TABLE="$MD_USER_TABLE )"
-MD_PW_TABLE="$MD_PW_TABLE )"
+export MD_DB_TABLE="$MD_DB_TABLE )"
+export MD_USER_TABLE="$MD_USER_TABLE )"
+export MD_PW_TABLE="$MD_PW_TABLE )"
 
 function replace()
 {

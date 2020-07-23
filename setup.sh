@@ -202,19 +202,18 @@ function tmp_insert_variables()
 	shopt -s dotglob
 	find $1 -type f | while IFS= read -r file; do
 		if [ "$(echo $file | grep .swp)" = "" ]; then
-			basename="$(basename $file)"
-			for line in $(cat $CLUSTER_PROPERTIES); do
+			while read -u 10 line; do
 				var="$(echo $line | cut -d= -f1)"
 				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
 				else							sed -i '' "s|__${var}__|${!var}|g" $file
 				fi
-			done
-			for line in $(cat $CLUSTER_AUTHENTICATION); do
+			done 10<$CLUSTER_PROPERTIES
+			while read -u 10 line; do
 				var="$(echo $line | cut -d= -f1)"
 				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
 				else							sed -i '' "s|__${var}__|${!var}|g" $file
 				fi
-			done
+			done 10<$CLUSTER_AUTHENTICATION
 		fi
 	done
 	echo "done!"
@@ -308,6 +307,8 @@ function perform_actions()
 					return $?
 				;;
 				Linux)
+					setup_env
+					minikube_wrap start
 					return $?
 				;;
 			esac
@@ -322,6 +323,8 @@ function perform_actions()
 					return $?
 				;;
 				Linux)
+					setup_env
+					minikube_wrap stop
 					return $?
 				;;
 			esac

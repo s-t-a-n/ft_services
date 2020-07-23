@@ -2,7 +2,7 @@ FROM alpine:latest
 
 ENV NAME="mariadb"
 
-ENV PACKAGES="supervisor openssh mariadb mariadb-client"
+ENV PACKAGES="supervisor openssh mariadb mariadb-client bash"
 
 ENV DOCKER_SRC="docker-srcs"
 ENV GLOB_CONT_SCRIPTS="$DOCKER_SRC/global_container_scripts"
