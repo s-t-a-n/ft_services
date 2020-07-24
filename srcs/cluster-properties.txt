@@ -1,3 +1,6 @@
 STORAGE="~/goinfre/kub-stor"
 CLUSTER_ADMIN="admin-user"
 METALLB_IP_RANGE="192.168.99.95-192.168.99.105"
+GRAFANA_DB_NAME=grafana                                                         
+GRAFANA_DB_USER=grafana_admin                                                   
+GRAFANA_DB_PW="$(date +%s | sha256sum | base64 | head -c 32)"

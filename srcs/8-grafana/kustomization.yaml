@@ -1,0 +1,10 @@
+secretGenerator:
+- name: grafana-secrets
+  files:
+  - grafana-secrets.txt
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+  annotations:
+    note: generated

@@ -66,11 +66,16 @@ spec:
         volumeMounts:
         - name: grafana-persistent-storage
           mountPath: /var/lib/grafana
+        - name: certificate
+          mountPath: /cert
         - name: varlog
           mountPath: /var/log
       volumes:
       - name: grafana-persistent-storage
         persistentVolumeClaim:
           claimName: grafana-pv-claim
+      - name: certificate
+        secret:
+          secretName: grafana-cert
       - name: varlog
         emptyDir: {}

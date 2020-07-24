@@ -204,13 +204,13 @@ function tmp_insert_variables()
 		if [ "$(echo $file | grep .swp)" = "" ]; then
 			while read -u 10 line; do
 				var="$(echo $line | cut -d= -f1)"
-				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
+				if [ $KERNEL = "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
 				else							sed -i '' "s|__${var}__|${!var}|g" $file
 				fi
 			done 10<$CLUSTER_PROPERTIES
 			while read -u 10 line; do
 				var="$(echo $line | cut -d= -f1)"
-				if [ $KERNEL == "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
+				if [ $KERNEL = "Linux" ]; then	sed -i "s|__${var}__|${!var}|g" $file
 				else							sed -i '' "s|__${var}__|${!var}|g" $file
 				fi
 			done 10<$CLUSTER_AUTHENTICATION

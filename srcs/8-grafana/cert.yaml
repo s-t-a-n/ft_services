@@ -1,0 +1,25 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: grafana-cert-issuer
+  namespace: default
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: grafana-cert
+  namespace: default
+spec:
+  secretName: grafana
+  commonName: grafana
+  isCA: false
+  keySize: 2048
+  keyAlgorithm: rsa
+  keyEncoding: pkcs1
+  dnsNames:
+    - grafana
+  secretName: grafana-cert
+  issuerRef:
+    name: grafana-cert-issuer

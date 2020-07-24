@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Source: https://github.com/jbergstroem/mariadb-alpine
 set -eo pipefail
 
@@ -26,6 +26,7 @@ MYSQLD_OPTS="${MYSQLD_OPTS} --debug-gdb"
 
 # No previous installation
 if [ -z "$(ls -A /var/lib/mysql/ 2> /dev/null)" ]; then
+  echo "No previous installation found!"
   [ -n "${SKIP_INNODB}" ] && touch /var/lib/mysql/noinnodb
   [ -n "${MYSQL_ROOT_PASSWORD}" ] && \
     echo "set password for 'root'@'%' = PASSWORD('${MYSQL_ROOT_PASSWORD}');" >> /tmp/init
@@ -51,9 +52,10 @@ if [ -z "$(ls -A /var/lib/mysql/ 2> /dev/null)" ]; then
   	fi 
   	echo "flush privileges;" >> /tmp/init
   }
-	
-  for ((n=0;n<${#MD_DB_TABLE[@]};n++)); do
-  	inject_databases ${MD_DB_TABLE[$n]} ${MD_USER_TABLE[$n]} ${MD_PW_TABLE[$n]}
+  
+  for ((n=0;n<${#DB_TABLE[@]};n++)); do
+	echo "Injecting DB ${DB_TABLE[$n]}..."
+  	inject_databases ${DB_TABLE[$n]} ${USER_TABLE[$n]} ${PW_TABLE[$n]}
   done
 
   if [ -n "${MYSQL_DATABASE}" ]; then
