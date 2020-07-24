@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Source: https://github.com/jbergstroem/mariadb-alpine
 set -eo pipefail
 
@@ -38,6 +38,23 @@ if [ -z "$(ls -A /var/lib/mysql/ 2> /dev/null)" ]; then
   INSTALL_OPTS="${INSTALL_OPTS} --skip-test-db"
   INSTALL_OPTS="${INSTALL_OPTS} --datadir=/var/lib/mysql"
   eval /usr/bin/mysql_install_db "${INSTALL_OPTS}"
+
+  function inject_databases()
+  {
+  	if [ -n "$1" ]; then
+  	  [ -n "${MYSQL_CHARSET}" ] || MYSQL_CHARSET="utf8"
+  	  [ -n "${MYSQL_COLLATION}" ] && MYSQL_COLLATION="collate '${MYSQL_COLLATION}'"
+  	  echo "create database if not exists \`$1\` character set '${MYSQL_CHARSET}' ${MYSQL_COLLATION}; " >> /tmp/init
+  	fi
+  	if [ -n "$2" ] && [ "$1" ]; then
+  	  echo "grant all on \`$1\`.* to '$2'@'%' identified by '$3'; " >> /tmp/init
+  	fi 
+  	echo "flush privileges;" >> /tmp/init
+  }
+	
+  for ((n=0;n<${#MD_DB_TABLE[@]};n++)); do
+  	inject_databases ${MD_DB_TABLE[$n]} ${MD_USER_TABLE[$n]} ${MD_PW_TABLE[$n]}
+  done
 
   if [ -n "${MYSQL_DATABASE}" ]; then
     [ -n "${MYSQL_CHARSET}" ] || MYSQL_CHARSET="utf8"
