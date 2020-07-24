@@ -22,11 +22,9 @@ SRC=$BASEDIR/srcs
 OBJ=$BASEDIR/obj
 
 CLUSTER_PROPERTIES=$SRC/cluster-properties.txt
-CLUSTER_DYNAMICS=$SRC/cluster-dynamics.txt
 CLUSTER_AUTHENTICATION=$SRC/cluster-authentication.txt
 
 export MINIKUBE_IN_STYLE=false # disable childish emoji
-source $CLUSTER_DYNAMICS # immediately source for runtime addition of properties
 
 case $KERNEL in
 	Darwin)
@@ -46,7 +44,7 @@ function clean_up()
 			logp fatal "aborting.."
 		;;
 		EXIT)
-			tmp_delete $OBJ
+#			tmp_delete $OBJ
 			logp endsection
 		;;
 		TERM)
@@ -226,7 +224,11 @@ function tmp_delete()
 		echo  "N.A.";
 		return
 	else
-		rm -rf $1
+		if which srm 1>/dev/null; then
+			srm -rf $1
+		else
+			rm -rf $1
+		fi
 	fi
 	echo "done!"
 }
@@ -282,13 +284,15 @@ function perform_actions()
 					fi
 				fi
 			done
+			ACTION=post
+			perform_actions
 			return $?
 		;;
 		post)
 			find $OBJ/* -prune -type d | while IFS= read -r service_d; do
 				if [ -f $service_d/post.sh ]; then
 					logp info "Running postscript for $service_d..."
-					sh $service_d/post.sh
+					. $service_d/post.sh
 				fi
 			done
 			return $?
@@ -448,14 +452,14 @@ function minikube_wrap()
 	case $1 in
 		start)
 			if ! minikube status 2>/dev/null 1>/dev/null; then
-				minikube start $MINIKUBE_FLAGS
+				minikube start $MINIKUBE_FLAGS || logp fatal "Failed to start minikube.."
 				eval $(minikube docker-env)
 				return $?
 			fi
 		;;
 		stop)
 			if minikube status 2>/dev/null 1>/dev/null; then
-				minikube stop
+				minikube stop || logp fatal "Failed to stop minikube.."
 				return $?
 			fi
 		;;
