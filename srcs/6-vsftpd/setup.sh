@@ -12,6 +12,7 @@ if [[ $(kubectl get pods -n cert-manager $(kubectl get pods -n cert-manager | gr
 		sleep 1;
 		if [ $? -gt 128 ]; then break; fi;
 	done
+	sleep 2;
 fi
 
 cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
