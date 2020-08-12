@@ -44,7 +44,7 @@ function clean_up()
 			logp fatal "aborting.."
 		;;
 		EXIT)
-#			tmp_delete $OBJ
+			tmp_delete $OBJ
 			logp endsection
 		;;
 		TERM)
@@ -114,6 +114,7 @@ function ft_services()
 function banner()
 {
 	clear
+	IP="$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')"
 	printf "\e[1m\e[33m+-------------------------------------------------------------------------------------------+\n"
 	printf "\e[1m\e[33m| \e[0m%-89s\e[1m\e[33m |\n" "`date`"
 	printf "\e[1m\e[33m| %-89s\e[1m\e[33m |\n" ""
