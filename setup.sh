@@ -29,9 +29,11 @@ export MINIKUBE_IN_STYLE=false # disable childish emoji
 case $KERNEL in
 	Darwin)
 		MINIKUBE_FLAGS+=--vm-driver=virtualbox
+		GOINFRE=/sgoinfre/sverschu/ 
 		;;
 	Linux)
 		MINIKUBE_FLAGS+=--vm-driver=virtualbox
+		GOINFRE=~/goinfre
 		;;
 esac
 
@@ -357,9 +359,10 @@ function perform_actions()
 			logp info "Purging..."
 			case $KERNEL in
 				Darwin)
-					rm -rf ~/.minikube && minikube delete
-					rm -rf ~/goinfre/minikube
-					rm -rf ~/goinfre/docker
+					rm -rf ~/.minikube ~/.kube
+					minikube delete
+					rm -rf $GOINFRE/minikube
+					rm -rf $GOINFRE/docker
 					VBoxManage controlvm "minikube" poweroff 2>/dev/null 
 					VBoxManage unregistervm --delete "minikube" 2>/dev/null
 					return 0
@@ -417,19 +420,19 @@ function setup_env()
 	case $KERNEL in
 		Darwin)
 			if ! docker version 1>/dev/null 2>&1; then
-				if [ ! -d ~/goinfre/docker ] || [ ! -L ~/Library/Containers/com.docker.docker ]
+				if [ ! -d $GOINFRE/docker ] || [ ! -L ~/Library/Containers/com.docker.docker ]
 				then
-					logp info "Setting up Docker folder @ ~/goinfre/docker!"
+					logp info "Setting up Docker folder @ $GOINFRE/docker!"
 					rm -rf ~/Library/Containers/com.docker.docker
-					mkdir ~/goinfre/docker
-					ln -s ~/goinfre/docker ~/Library/Containers/com.docker.docker
+					mkdir $GOINFRE/docker
+					ln -s $GOINFRE/docker ~/Library/Containers/com.docker.docker
 				fi
-				if [ ! -d ~/goinfre/minikube ] || [ ! -L ~/.minikube ]
+				if [ ! -d $GOINFRE/minikube ] || [ ! -L ~/.minikube ]
 				then
-					logp info "Setting up Minikube folder @ ~/goinfre/minikube!"
+					logp info "Setting up Minikube folder @ $GOINFRE/minikube!"
 					rm -rf ~/.minikube
-					mkdir ~/goinfre/minikube
-					ln -s ~/goinfre/minikube ~/.minikube
+					mkdir $GOINFRE/minikube
+					ln -s $GOINFRE/minikube ~/.minikube
 				fi
 				#logp info "Starting docker..."	
 				#open -a Docker
