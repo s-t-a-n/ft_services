@@ -12,7 +12,7 @@ spec:
       name: ssh
   selector:
     app: mariadb
-  type: LoadBalancer
+    type: LoadBalancer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
