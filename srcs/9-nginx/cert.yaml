@@ -1,0 +1,25 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: nginx-cert-issuer
+  namespace: default
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: nginx-cert
+  namespace: default
+spec:
+  secretName: nginx
+  commonName: nginx
+  isCA: false
+  keySize: 2048
+  keyAlgorithm: rsa
+  keyEncoding: pkcs1
+  dnsNames:
+    - nginx
+  secretName: nginx-cert
+  issuerRef:
+    name: nginx-cert-issuer

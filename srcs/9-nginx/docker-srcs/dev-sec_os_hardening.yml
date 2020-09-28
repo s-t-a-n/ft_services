@@ -1,0 +1,6 @@
+- hosts: localhost
+  roles:
+    - dev-sec.os-hardening
+  ignore_errors: yes
+  vars:
+    os_security_kernel_enable_module_loading : false

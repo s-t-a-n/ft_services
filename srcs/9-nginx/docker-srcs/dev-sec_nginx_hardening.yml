@@ -1,0 +1,4 @@
+- hosts: localhost
+  roles:
+    - dev-sec.nginx-hardening
+  ignore_errors: yes
