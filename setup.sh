@@ -359,8 +359,8 @@ function perform_actions()
 			logp info "Purging..."
 			case $KERNEL in
 				Darwin)
-					rm -rf ~/.minikube ~/.kube
 					minikube delete
+					rm -rf ~/.minikube ~/.kube
 					rm -rf $GOINFRE/minikube
 					rm -rf $GOINFRE/docker
 					VBoxManage controlvm "minikube" poweroff 2>/dev/null 
