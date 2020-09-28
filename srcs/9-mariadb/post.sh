@@ -6,6 +6,7 @@ source $basedir/srcs/cluster-authentication.txt
 
 DB_POD="$(kubectl get pod --all-namespaces| grep mariadb | awk '{print $2}')"
 
-inject_databases "$SQL_QUEUE_FILE" "root" "$MYSQL_ROOT_PASSWORD" "$DB_POD"
+#echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '__MYSQL_ROOT_PASSWORD__;\n$(cat $SQL_QUEUE_FILE)" > $SQL_QUEUE_FILE
+inject_databases "$SQL_QUEUE_FILE" "$DB_POD"
 
 exit $?

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 function queue_database_injection()
 {
 	echo ARGUMENTS: $@, arg count : $#
@@ -16,7 +15,7 @@ function queue_database_injection()
 
 	if [ ! -f $QUEUE_F ]; then
 		logp info "Setting up $QUEUE_F.."
-		touch $QUEUE_F && echo '#!/bin/sh' > $QUEUE_F
+		touch $QUEUE_F || logp fatal "Couldn't setup mysql injection queue: $QUEUE_F"
 	fi
 	
 	if [ -n "${MYSQL_DATABASE}" ]; then

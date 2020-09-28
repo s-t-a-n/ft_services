@@ -12,8 +12,8 @@ RUN apk update && apk upgrade && apk add $PACKAGES && rm -rf /var/cache/apk/*
 
 COPY $DOCKER_SRC/my.cnf /etc/my.cnf.d/
 
+# allow anyone to connect by default
 RUN touch /usr/share/mariadb/mysql_test_db.sql && \
-    # allow anyone to connect by default
     sed -i -e 's/127.0.0.1/%/' /usr/share/mariadb/mysql_system_tables_data.sql && \
     mkdir /run/mysqld && \
     chown mysql:mysql /etc/my.cnf.d/ /run/mysqld /usr/share/mariadb/mysql_system_tables_data.sql
