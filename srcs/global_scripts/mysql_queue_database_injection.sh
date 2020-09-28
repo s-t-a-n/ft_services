@@ -2,8 +2,6 @@
 
 function queue_database_injection()
 {
-	echo ARGUMENTS: $@, arg count : $#
-
 	if [ ! $# -eq 4 ]; then
 		logp fatal "queue_database_injection expects db parameters and file as parameters!"
 	fi

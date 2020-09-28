@@ -2,8 +2,6 @@
 
 function inject_databases()
 {
-	echo ARGUMENTS : $@
-
 	if [ ! $# -eq 2 ]; then
 		logp fatal "mysql_inject_database expects queue_file and host as parameters!"
 	fi
