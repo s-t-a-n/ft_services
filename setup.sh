@@ -227,11 +227,12 @@ function tmp_delete()
 		echo  "N.A.";
 		return
 	else
-		if which srm 1>/dev/null; then
-			srm -rf $1
-		else
-			rm -rf $1
-		fi
+		#if which srm 1>/dev/null; then
+		#	srm -rf $1
+		#else
+		#	rm -rf $1
+		#fi
+		rm -rf $1
 	fi
 	echo "done!"
 }
