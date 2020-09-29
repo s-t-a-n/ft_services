@@ -3,6 +3,9 @@ kind: ConfigMap
 metadata:
   name: haproxy-configmap
   namespace: default
+#data:
+#  servers-increment: "42"
+#  ssl-redirect: "OFF"
 ---
 apiVersion: apps/v1
 kind: Deployment

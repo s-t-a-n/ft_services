@@ -16,6 +16,11 @@ RUN mkdir -p /etc/nginx/sites-available && mkdir -p /etc/nginx/sites-enabled
 
 RUN mkdir -p /var/log/nginx && chown -R nginx:nginx /var/log/nginx
 
+RUN mv /etc/nginx/conf.d/default.conf /etc/nginx/sites-available/default.conf
+
+# uncomment to load a custom default.conf
+#COPY $DOCKER_SRC/default.conf /etc/nginx/sites-available/default.conf
+
 # UNIVERSAL #
 COPY $DOCKER_SRC/run.sh /usr/sbin/
 RUN chmod 755 /usr/sbin/run.sh
