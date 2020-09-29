@@ -9,7 +9,7 @@ function inject_databases()
 	if [ ! -f $1 ]; then
 		logp info "No queue file found. Skipping database injection."
 	else
-		logp info "Injecting databases @ $2..."
+		logp info "Injecting databases @ $2 from input file $1..."
 
 		QUEUE_F="$1"
 		HOST="$2"
