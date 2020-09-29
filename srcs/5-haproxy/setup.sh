@@ -6,4 +6,5 @@ kubectl apply -f $basedir/haproxy-ingress.yaml				\
 && kubectl apply -f $basedir/default-backend.yaml			\
 && kubectl apply -f $basedir/haproxy-configmap.yaml			\
 
+
 exit $?
