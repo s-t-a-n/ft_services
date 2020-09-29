@@ -6,13 +6,14 @@ metadata:
     app: mariadb
 spec:
   ports:
-    - port: 3306
-      name: mariadb
-    - port: 22
-      name: ssh
+    - name: ssh
+      port: 22
+      protocol: TCP
+    - name: mysql
+      port: 3306
+      protocol: TCP
   selector:
-    app: mariadb
-    type: LoadBalancer
+    run: mariadb
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
