@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir -p /run/nginx
+mkdir -p /run/nginx && mkdir -p /var/log/nginx || exit 1
 
 if [ -d /data/nginx-conf ] && [ ! -L /etc/nginx ]; then 
 	echo "Nginx configuration already exists in /data/nginx..."
