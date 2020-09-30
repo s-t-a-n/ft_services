@@ -17,6 +17,16 @@ RUN apk update && apk upgrade												\
 	&& apk add "php$(echo $PHP_VERSION | cut -d\. -f0)<$PHP_VERSION"		\
 	&& rm -rf /var/cache/apk/*
 
+COPY $DOCKER_SRC/php-fpm_wrap.sh /usr/sbin/
+RUN chmod 700 /usr/sbin/php-fpm_wrap.sh
+
+RUN mkdir -p /prestage/php-fpm.d && mkdir -p /prestage/conf.d
+COPY $DOCKER_SRC/php/php.ini /prestage/
+COPY $DOCKER_SRC/php/php-fpm.conf /prestage/
+COPY $DOCKER_SRC/php/php-fpm.d /prestage/php-fpm.d
+COPY $DOCKER_SRC/php/conf.d /prestage/conf.d
+RUN cp -r /prestage/* /etc/php$(echo $PHP_VERSION | cut -d\. -f0)/ && rm -rf /prestage/
+
 # UNIVERSAL #
 COPY $DOCKER_SRC/run.sh /usr/sbin/
 RUN chmod 755 /usr/sbin/run.sh

@@ -67,11 +67,17 @@ spec:
         volumeMounts:
         - name: phpfpm-persistent-storage
           mountPath: /data
+        - name: php-config
+          readOnly: true
+          mountPath: /config
         - name: varlog
           mountPath: /var/log
       volumes:
       - name: phpfpm-persistent-storage
         persistentVolumeClaim:
           claimName: phpfpm-pv-claim
+      - name: php-config
+        secret:
+          secretName: php-config
       - name: varlog
         emptyDir: {}
