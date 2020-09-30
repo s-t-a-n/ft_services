@@ -1,14 +1,21 @@
 FROM alpine:latest
 
-ENV NAME="nginx"
+ENV NAME="phpfpm"
 
-ENV PACKAGES="supervisor openssh openssl curl jq bash php-fpm"
+ARG PHP_VERSION
+ARG PHPFPM_VERSION
+
+ENV PACKAGES="supervisor openssh openssl curl jq bash"
 
 ENV DOCKER_SRC="docker-srcs"
 ENV GLOB_CONT_SCRIPTS="$DOCKER_SRC/global_container_scripts"
 ENV GLOB_CONT_CONFS="$DOCKER_SRC/global_container_confs"
 
-RUN apk update && apk upgrade && apk add $PACKAGES && rm -rf /var/cache/apk/*
+RUN apk update && apk upgrade												\
+	&& apk add $PACKAGES													\
+	&& apk add "php$(echo $PHPFPM_VERSION | cut -d\. -f0)-fpm<$PHPFPM_VERSION"\
+	&& apk add "php$(echo $PHP_VERSION | cut -d\. -f0)<$PHP_VERSION"		\
+	&& rm -rf /var/cache/apk/*
 
 # UNIVERSAL #
 COPY $DOCKER_SRC/run.sh /usr/sbin/
@@ -38,9 +45,7 @@ CMD ["/usr/sbin/run.sh"]
 
 ## HARDENING #
 #RUN apk add ansible
-#COPY $DOCKER_SRC/dev-sec_nginx_hardening.yml /root/
 #COPY $DOCKER_SRC/dev-sec_os_hardening.yml /root/
-#RUN ansible-galaxy install dev-sec.nginx-hardening && ansible-playbook /root/dev-sec_nginx_hardening.yml && rm -f /root/dev-sec_nginx_hardening.yml
 #RUN ansible-galaxy install dev-sec.os-hardening && ansible-playbook /root/dev-sec_os_hardening.yml && rm -f /root/dev-sec_os_hardening.yml
 ##! HARDENING #
 
