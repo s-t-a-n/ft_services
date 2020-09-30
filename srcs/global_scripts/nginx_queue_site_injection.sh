@@ -17,6 +17,7 @@ function queue_site_injection()
 	
 	echo "kubectl cp $CONF __POD__:/etc/nginx/sites-available/" >> $QUEUE_F	\
 	&& echo "kubectl exec __POD__ -- bash -c \"cd /etc/nginx/sites-enabled && ln -s ../sites-available/$(basename $CONF)./\"" >> $QUEUE_F															\
+	&& echo "kubectl exec __POD__ -- bash -c \"nginx -s reload\"" >> $QUEUE_F \
 	&& echo "kubectl cp $DATA __POD__:/data/http/" >> $QUEUE_F				\
 	|| logp fatal "queue_site_injection couldn't add rules to queue file $QUEUE_F"
 
