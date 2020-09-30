@@ -38,7 +38,7 @@ case $KERNEL in
 esac
 
 
-DEPENDENCIES=(kubectl minikube)
+DEPENDENCIES=(kubectl docker minikube)
 function clean_up()
 {
 	case $1 in
