@@ -16,7 +16,7 @@ RUN apk update && apk upgrade												\
 	&& apk add $PACKAGES													\
 	&& apk add "php$(echo $PHPFPM_VERSION | cut -d\. -f0)-fpm<$PHPFPM_VERSION"\
 	&& apk add "php$(echo $PHP_VERSION | cut -d\. -f0)<$PHP_VERSION"		\
-	&& apk add $PHP_MODULES
+	&& apk add $PHP_MODULES													\
 	&& rm -rf /var/cache/apk/*
 
 COPY $DOCKER_SRC/php-fpm_wrap.sh /usr/sbin/

@@ -12,10 +12,10 @@ function inject_site()
 		logp info "Injecting sites @ $2 from input file $1..."
 
 		QUEUE_F="$1"
-		HOST="$2"
-		sed -i'' "s/__POD__/$HOST/g" $QUEUE_F								\
+		POD="$2"
+		sed -i'' "s/__POD__/$POD/g" $QUEUE_F								\
 		&& sh $QUEUE_F														\
-		logp fatal "Failed to inject site @ $HOST from input file $1"
+		|| logp fatal "Failed to inject site @ $POD from input file $1"
 
 		return $?
 	fi
