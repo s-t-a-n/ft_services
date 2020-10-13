@@ -296,7 +296,7 @@ function perform_actions()
 			find $OBJ/* -prune -type d | while IFS= read -r service_d; do
 				if [ -f $service_d/post.sh ]; then
 					logp info "Running postscript for $service_d..."
-					. $service_d/post.sh
+					sh $service_d/post.sh
 				fi
 			done
 			return $?
