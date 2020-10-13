@@ -1,0 +1,10 @@
+secretGenerator:
+- name: php-config
+  files:
+  - config.txt
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+  annotations:
+    note: generated
