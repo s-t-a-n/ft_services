@@ -13,7 +13,8 @@ spec:
       port: 3306
       protocol: TCP
   selector:
-    run: mariadb
+    app: mariadb
+  type: LoadBalancer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

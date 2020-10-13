@@ -1,0 +1,5 @@
+WORDPRESS_DB_NAME=wordpress
+WORDPRESS_DB_USER=wordpress
+WORDPRESS_DB_PW=YThlYzg5Zjg5MGVmNTVmNGI3YzdlYzhl
+WORDPRESS_NGINX_CONF=$basedir/wordpress.conf
+WORDPRESS_ROOT=$basedir/wordpress_root
