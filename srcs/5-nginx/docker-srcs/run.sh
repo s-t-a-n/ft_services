@@ -9,6 +9,13 @@ mkdir -p /run/nginx && mkdir -p /var/log/nginx && mkdir -p /data/http #|| exit 1
 #		&& chown -R nginx:nginx /data/http #|| exit 1
 #fi
 
+# just for ft_services
+if [ ! -f /data/http/default/index.html ]; then
+	mkdir -p /data/http/default
+	mv /index.html /data/http/default
+	chown -R nginx:nginx /data/http
+fi
+
 if [ -d /data/nginx-conf ] && [ ! -L /etc/nginx ]; then 
 	echo "Nginx configuration already exists in /data/nginx..."
 	BACKUPD="/data/nginx-$(date +%D)"

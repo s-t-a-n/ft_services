@@ -19,7 +19,12 @@ RUN mkdir -p /var/log/nginx && chown -R nginx:nginx /var/log/nginx
 RUN mv /etc/nginx/conf.d/default.conf /etc/nginx/sites-available/default.conf
 
 # uncomment to load a custom default.conf
-#COPY $DOCKER_SRC/default.conf /etc/nginx/sites-available/default.conf
+#COPY $DOCKER_SRC/default/nginx_default.conf /etc/nginx/sites-available/default.conf
+
+# just for ft_services
+COPY $DOCKER_SRC/default/nginx_default.conf /etc/nginx/sites-available/default.conf
+RUN cd /etc/nginx/sites-enabled/ && ln -s ../sites-available/default.conf ./
+COPY $DOCKER_SRC/default/index.html /
 
 # UNIVERSAL #
 COPY $DOCKER_SRC/run.sh /usr/sbin/
