@@ -85,4 +85,4 @@ CMD ["/usr/sbin/run.sh"]
 #RUN ansible-galaxy install dev-sec.os-hardening && ansible-playbook /root/dev-sec_os_hardening.yml && rm -f /root/dev-sec_os_hardening.yml
 ##! HARDENING #
 
-EXPOSE 9000
+EXPOSE 5050

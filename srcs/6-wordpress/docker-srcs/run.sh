@@ -2,6 +2,8 @@
 
 source /config/* #|| exit 1
 
+until nc -w1 -z $WP_DB_HOST 3306 >/dev/null 2>&1; do :; done
+
 # NGINX
 mkdir -p /run/nginx && mkdir -p /var/log/nginx && mkdir -p /data/http #|| exit 1
 
