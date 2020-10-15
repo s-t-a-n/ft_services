@@ -1,5 +1,0 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: __CLUSTER_ADMIN__
-  namespace: kubernetes-dashboard
