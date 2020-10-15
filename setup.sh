@@ -28,11 +28,11 @@ export MINIKUBE_IN_STYLE=false # disable childish emoji
 
 case $KERNEL in
 	Darwin)
-		MINIKUBE_FLAGS+=--vm-driver=virtualbox
+		MINIKUBE_FLAGS+="--vm-driver=virtualbox --memory 4096 --cpus 4 --disk-size 40g"
 		GOINFRE=/sgoinfre/sverschu/ 
 		;;
 	Linux)
-		MINIKUBE_FLAGS+=--vm-driver=virtualbox
+		MINIKUBE_FLAGS+="--vm-driver=virtualbox --memory 4096 --cpus 4 --disk-size 40g"
 		GOINFRE=~/goinfre
 		;;
 esac
