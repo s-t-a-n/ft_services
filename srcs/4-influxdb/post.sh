@@ -2,7 +2,7 @@
 basedir=$(dirname "$0")
 source $basedir/../global_scripts/logp.sh
 source $basedir/../global_scripts/wait_for_pod.sh
-source $basedir/../global_scripts/mysql_inject_database.sh
+source $basedir/../global_scripts/influxdb_inject_database.sh
 source $basedir/../cluster-authentication.txt
 source $basedir/../cluster-properties.txt
 
