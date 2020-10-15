@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegraf
+  labels:
+    app: telegraf
+spec:
+  ports:
+    - port: 22
+      name: ssh
+  selector:
+    app: telegraf
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: telegraf-pv-claim
+  labels:
+    app: telegraf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegraf
+  labels:
+    app: telegraf
+spec:
+  selector:
+    matchLabels:
+      app: telegraf
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: telegraf
+    spec:
+      serviceAccount: pod-service-access
+      containers:
+      - image: telegraf-alpine:v1
+        imagePullPolicy: Never
+        name: telegraf
+        readinessProbe:
+          tcpSocket:
+            port: 22
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 22
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        volumeMounts:
+        - name: telegraf-persistent-storage
+          mountPath: /var/lib/telegraf
+        - name: telegraf-config
+          readOnly: true
+          mountPath: /config
+        - name: varlog
+          mountPath: /var/log
+      volumes:
+      - name: telegraf-persistent-storage
+        persistentVolumeClaim:
+          claimName: telegraf-pv-claim
+      - name: telegraf-config
+        secret:
+          secretName: telegraf-secrets
+      - name: varlog
+        emptyDir: {}

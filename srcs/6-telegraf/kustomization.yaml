@@ -1,0 +1,10 @@
+secretGenerator:
+- name: telegraf-secrets
+  files:
+  - telegraf-secrets.txt
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+  annotations:
+    note: generated
