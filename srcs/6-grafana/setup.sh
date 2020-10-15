@@ -12,7 +12,10 @@ wait_for_pod cert-manager-webhook cert-manager
 
 source $basedir/grafana-secrets.txt || exit 1
 
-queue_database_injection "$GRAFANA_DB_NAME" "$GRAFANA_DB_USER" "$GRAFANA_DB_PW" "__SQL_QUEUE_FILE__"			\
+sed -i '' "s|__GRAFANA_DB_NAME__|$GRAFANA_DB_NAME|g" $basedir/docker-srcs/grafana.ini							\
+&& sed -i '' "s|__GRAFANA_DB_USER__|$GRAFANA_DB_USER|g" $basedir/docker-srcs/grafana.ini						\
+&& sed -i '' "s|__GRAFANA_DB_PW__|$GRAFANA_DB_PW|g" $basedir/docker-srcs/grafana.ini							\
+&& queue_database_injection "$GRAFANA_DB_NAME" "$GRAFANA_DB_USER" "$GRAFANA_DB_PW" "__SQL_QUEUE_FILE__"			\
 && cp -r $basedir/../global_container_scripts $basedir/docker-srcs/												\
 && cp -r $basedir/../global_container_confs $basedir/docker-srcs/												\
 && kubectl apply -k $basedir																					\

@@ -35,6 +35,15 @@ RUN mkdir -p "$GF_PATHS_HOME/.aws" \
     && chown -R grafana:grafana "$GF_PATHS_DATA" "$GF_PATHS_HOME/.aws" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING" \
     && chmod -R 777 "$GF_PATHS_DATA" "$GF_PATHS_HOME/.aws" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
 
+# thank you Peer (https://github.com/pde-bakk/ft_services/blob/master/srcs/grafana/Dockerfile)
+RUN mkdir -p $GF_PATHS_PROVISIONING/datasources
+COPY $DOCKER_SRC/datasource.yaml $GF_PATHS_PROVISIONING/datasources/
+
+RUN mkdir -p $GF_PATHS_PROVISIONING/dashboards/mine
+COPY $DOCKER_SRC/dashboards/*.json $GF_PATHS_PROVISIONING/dashboards/mine/
+COPY $DOCKER_SRC/dashboards/default.yaml $GF_PATHS_PROVISIONING/dashboards/
+RUN chown -R grafana:grafana $GF_PATHS_PROVISIONING
+
 COPY $DOCKER_SRC/grafana-server_wrapper.sh /usr/sbin/
 RUN chmod 755 /usr/sbin/grafana-server_wrapper.sh
 
