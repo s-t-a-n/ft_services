@@ -1,5 +1,5 @@
 secretGenerator:
-- name: php-config
+- name: wordpress-config
   files:
   - config.txt
 generatorOptions:

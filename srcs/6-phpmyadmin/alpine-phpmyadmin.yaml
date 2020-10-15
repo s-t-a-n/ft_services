@@ -80,6 +80,6 @@ spec:
           claimName: phpmyadmin-pv-claim
       - name: php-config
         secret:
-          secretName: php-config
+          secretName: phpmyadmin-config
       - name: varlog
         emptyDir: {}

@@ -80,6 +80,6 @@ spec:
           claimName: wordpress-pv-claim
       - name: php-config
         secret:
-          secretName: php-config
+          secretName: wordpress-config
       - name: varlog
         emptyDir: {}

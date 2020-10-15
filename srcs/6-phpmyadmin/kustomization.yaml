@@ -1,5 +1,5 @@
 secretGenerator:
-- name: php-config
+- name: phpmyadmin-config
   files:
   - config.txt
 generatorOptions:
