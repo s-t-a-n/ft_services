@@ -14,7 +14,7 @@ function inject_site()
 
 		QUEUE_F="$1"
 		POD="$2"
-		sed -i'' "s/__POD__/$POD/g" $QUEUE_F								\
+		sed_i "s/__POD__/$POD/g" $QUEUE_F								\
 		&& sh $QUEUE_F														\
 		|| logp fatal "Failed to inject site @ $POD from input file $1"
 
