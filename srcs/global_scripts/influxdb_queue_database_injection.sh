@@ -9,7 +9,7 @@ function queue_influxdb_injection()
 	INFLUXDB_DATABASE=$1
 	#INFLUXDB_USER=$2
 	#INFLUXDB_PASSWORD=$3
-	QUEUE_F=$4
+	QUEUE_F=$2
 
 	if [ ! -f $QUEUE_F ]; then
 		logp info "Setting up $QUEUE_F.."
