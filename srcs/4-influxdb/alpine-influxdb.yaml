@@ -13,7 +13,8 @@ spec:
       port: 8086
       protocol: TCP
   selector:
-    run: influxdb
+    app: influxdb
+  type: LoadBalancer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
