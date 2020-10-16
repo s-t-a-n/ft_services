@@ -24,4 +24,3 @@ cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
 				-t wordpress-alpine:v1 $basedir								\
 && kubectl apply -f $basedir/alpine-wordpress.yaml							\
 && queue_database_injection "$WP_DB_NAME" "$WP_DB_USER" "$WP_DB_PW" "__SQL_QUEUE_FILE__"
-exit $?

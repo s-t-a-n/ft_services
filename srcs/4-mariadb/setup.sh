@@ -10,5 +10,3 @@ cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
 && kubectl apply -k $basedir												\
 && docker build -f $basedir/Dockerfile -t mariadb-alpine:v1 $basedir		\
 && kubectl apply -f $basedir/alpine-mariadb.yaml
-
-exit $?

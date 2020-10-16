@@ -8,5 +8,3 @@ cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
 && cp -r $basedir/../global_container_confs $basedir/docker-srcs/			\
 && docker build -f $basedir/Dockerfile -t influxdb-alpine:v1 $basedir	\
 && kubectl apply -f $basedir/alpine-influxdb.yaml
-
-exit $?

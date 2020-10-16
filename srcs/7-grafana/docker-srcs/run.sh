@@ -22,5 +22,3 @@ chown -R grafana:grafana /var/lib/grafana
 rm -f /etc/motd
 
 supervisord -c /etc/supervisord/supervisord.conf
-
-exit $?

@@ -16,4 +16,3 @@ cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
 				-f $basedir/Dockerfile										\
 				-t phpfpm-alpine:v1 $basedir								\
 && kubectl apply -f $basedir/alpine-phpfpm.yaml
-exit $?

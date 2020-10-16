@@ -18,4 +18,3 @@ cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
 				-t phpmyadmin-alpine:v1 $basedir								\
 && kubectl apply -f $basedir/alpine-phpmyadmin.yaml							\
 && queue_database_injection "$PHPMYADMIN_DB_NAME" "$PHPMYADMIN_DB_USER" "$PHPMYADMIN_DB_PW" "__SQL_QUEUE_FILE__"
-exit $?

@@ -13,5 +13,3 @@ cp -r $basedir/../global_container_scripts $basedir/docker-srcs/			\
 && kubectl apply -f $basedir/cert.yaml										\
 && docker build -f $basedir/Dockerfile -t vsftpd-alpine:v1 $basedir	\
 && kubectl apply -f $basedir/alpine-vsftpd.yaml
-
-exit $?

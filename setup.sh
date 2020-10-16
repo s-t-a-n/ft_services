@@ -26,7 +26,7 @@ CLUSTER_AUTHENTICATION=$SRC/cluster-authentication.txt
 
 export MINIKUBE_IN_STYLE=false # disable childish emoji
 
-source $SRC/global_scripts/sed_i.sh # but POSIX ? couldn't be bothered !
+source $SRC/global_scripts/sed_i.sh # POSIX ? couldn't be bothered !
 
 case $KERNEL in
 	Darwin)
@@ -153,36 +153,6 @@ function handle_flags()
 	if [ "$ACTION" = "" ]; then
 			logp fatal "No run command specified! (run $0 -h for usage)"
 	fi
-
-	while getopts "m:i:p:l:r:sh" ARG; do
-		case "${ARG}" in
-			h)
-				usage
-				;;
-			m)
-				((${OPTARG} > 0)) || _usage
-				EXT_FLAGS="$EXT_FLAGS -D MEMSIZE=${OPTARG}"
-				;;
-			i)
-				((${OPTARG} > 0)) || _usage
-				EXT_FLAGS="$EXT_FLAGS -D ITERATIONS=${OPTARG}"
-				;;
-			s)
-				EXT_FLAGS="$EXT_FLAGS -fsanitize=address -D FSANITIZE_ADDRESS=1"
-				logp warning "--- Don't forget to ADD -fsanitize=address to your flags (like -Wall -Werror -Wextra) in your libasm makefile before compiling!"
-				;;
-			r)
-				((${OPTARG} == 0)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=0"
-				((${OPTARG} == 1)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=1"
-				((${OPTARG} == 0)) || ((${OPTARG} == 1)) || _usage
-
-				;;
-			*)
-				_usage
-				;;
-		esac
-	done
-	shift $((OPTIND-1))
 }
 
 function tmp_create()

@@ -10,5 +10,3 @@ if ! kubectl get secrets -n metallb-system memberlist 2>/dev/null 1>&2; then
 fi
 
 kubectl apply -f $basedir/config.yaml
-
-exit $?

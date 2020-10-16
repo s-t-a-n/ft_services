@@ -22,4 +22,3 @@ source $basedir/grafana-secrets.txt																				\
 && kubectl apply -f $basedir/cert.yaml																			\
 && docker build -f $basedir/Dockerfile -t grafana-alpine:v1 $basedir											\
 && kubectl apply -f $basedir/alpine-grafana.yaml
-exit $?

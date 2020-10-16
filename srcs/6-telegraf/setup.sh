@@ -20,4 +20,3 @@ source $basedir/telegraf-secrets.txt																			\
 && docker build -f $basedir/Dockerfile -t telegraf-alpine:v1 $basedir											\
 && kubectl apply -f $basedir/alpine-telegraf.yaml																\
 && queue_influxdb_injection "$TELEGRAF_INFLUX_DB_NAME" "__INFLUXDB_QUEUE_FILE__"
-exit $?

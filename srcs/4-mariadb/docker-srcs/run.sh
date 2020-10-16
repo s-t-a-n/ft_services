@@ -18,5 +18,3 @@ chown -R mariadb:mariadb /var/lib/mariadb
 rm -f /etc/motd
 
 supervisord -c /etc/supervisord/supervisord.conf
-
-exit $?

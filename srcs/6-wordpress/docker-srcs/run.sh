@@ -24,5 +24,3 @@ mkdir -p /run/php-fpm$PHP_SUFFIX && mkdir -p /var/log/php$PHP_SUFFIX
 # UNIVERSAL
 rm -f /etc/motd
 supervisord -c /etc/supervisord/supervisord.conf
-
-exit $?
