@@ -6,6 +6,4 @@ rm -f /etc/motd
 
 supervisord -c /etc/supervisord/supervisord.conf
 
-tail -f /dev/null # remove when ready
-
 exit $?

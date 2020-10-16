@@ -1,0 +1,21 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring
+rules:
+- apiGroups: [ "", "extensions", "apps" ]
+  resources: [ "daemonsets", "deployments", "endpoints", "ingresses", "nodes", "persistentvolumes", "persistentvolumeclaims", "pods", "services", "statefulsets", "namespaces" ]
+  verbs: [ "get", "list", "watch" ]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: monitoring
+subjects:
+- kind: ServiceAccount
+  name: monitoring

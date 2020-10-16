@@ -43,20 +43,25 @@ spec:
       labels:
         app: telegraf
     spec:
-      serviceAccount: pod-service-access
+      serviceAccount: monitoring
       containers:
       - image: telegraf-alpine:v1
         imagePullPolicy: Never
         name: telegraf
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         readinessProbe:
           tcpSocket:
             port: 22
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 180
+          periodSeconds: 20
         livenessProbe:
           tcpSocket:
             port: 22
-          initialDelaySeconds: 15
+          initialDelaySeconds: 180
           periodSeconds: 20
         volumeMounts:
         - name: telegraf-persistent-storage
