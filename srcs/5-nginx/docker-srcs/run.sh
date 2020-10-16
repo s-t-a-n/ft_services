@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir -p /run/nginx && mkdir -p /var/log/nginx && mkdir -p /data/http #|| exit 1
+mkdir -p /run/nginx && mkdir -p /var/log/nginx && mkdir -p /data/http
 
 # uncomment to load a custom default.conf
 #if [ ! -d /data/http/default ] ||  [ ! -f /data/http/default/index.html ]; then
@@ -20,7 +20,7 @@ if [ -d /data/nginx-conf ] && [ ! -L /etc/nginx ]; then
 	echo "Nginx configuration already exists in /data/nginx..."
 	BACKUPD="/data/nginx-$(date +%D)"
 	echo "Moving existing configuration to $BACKUPD"
-	mv /data/nginx-conf $BACKUPD #|| exit 1
+	mv /data/nginx-conf $BACKUPD
 fi
 
 if [ ! -L /etc/nginx ]; then
@@ -28,12 +28,10 @@ if [ ! -L /etc/nginx ]; then
 fi
 
 if [ ! -L /data/nginx-conf/sites-enabled/default ]; then
-	(cd /data/nginx-conf/sites-enabled/ && ln -s ../sites-available/default.conf ./) #|| exit 1
+	(cd /data/nginx-conf/sites-enabled/ && ln -s ../sites-available/default.conf ./)
 fi
 
 rm -f /etc/motd
 supervisord -c /etc/supervisord/supervisord.conf
-
-tail -f /dev/null # remove when ready
 
 exit $?

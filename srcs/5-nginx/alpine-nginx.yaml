@@ -60,12 +60,12 @@ spec:
         readinessProbe:
           tcpSocket:
             port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 180
+          periodSeconds: 20
         livenessProbe:
           tcpSocket:
             port: 80
-          initialDelaySeconds: 15
+          initialDelaySeconds: 180
           periodSeconds: 20
         volumeMounts:
         - name: nginx-persistent-storage
