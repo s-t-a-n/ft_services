@@ -13,7 +13,7 @@ function queue_influxdb_injection()
 
 	if [ ! -f $QUEUE_F ]; then
 		logp info "Setting up $QUEUE_F.."
-		touch $QUEUE_F || logp fatal "Couldn't setup mysql injection queue: $QUEUE_F"
+		touch $QUEUE_F || logp fatal "Couldn't setup influxdb injection queue: $QUEUE_F"
 	fi
 	
 	if [ -n "${INFLUXDB_DATABASE}" ]; then

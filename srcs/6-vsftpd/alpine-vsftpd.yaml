@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vsftpd
+  labels:
+    app: vsftpd
+spec:
+  ports:
+    - port: 21
+      name: vsftpd
+    - port: 21000
+      name: vsftpd-data
+    - port: 22
+      name: ssh
+  selector:
+    app: vsftpd
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vsftpd-pv-claim
+  labels:
+    app: vsftpd
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vsftpd
+  labels:
+    app: vsftpd
+spec:
+  selector:
+    matchLabels:
+      app: vsftpd
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: vsftpd
+    spec:
+      serviceAccount: pod-service-access
+      containers:
+      - image: vsftpd-alpine:v1
+        imagePullPolicy: Never
+        name: vsftpd
+        ports:
+        - containerPort: 21
+          hostPort: 21
+        - containerPort: 21000
+          hostPort: 21000
+        readinessProbe:
+          tcpSocket:
+            port: 21
+          initialDelaySeconds: 180
+          periodSeconds: 20
+        livenessProbe:
+          tcpSocket:
+            port: 21
+          initialDelaySeconds: 180
+          periodSeconds: 20
+        volumeMounts:
+        - name: vsftpd-persistent-storage
+          mountPath: /data
+        - name: varlog
+          mountPath: /var/log
+        - name: certificate
+          mountPath: /cert
+      volumes:
+      - name: vsftpd-persistent-storage
+        persistentVolumeClaim:
+          claimName: vsftpd-pv-claim
+      - name: certificate
+        secret:
+          secretName: vsftpd-cert
+      - name: varlog
+        emptyDir: {}
