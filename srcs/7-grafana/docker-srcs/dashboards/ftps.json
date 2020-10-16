@@ -15,7 +15,7 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 3,
+    "id": 1,
     "links": [],
     "panels": [
       {
@@ -24,6 +24,7 @@
         "dashLength": 10,
         "dashes": false,
         "datasource": null,
+        "description": "something quint",
         "fieldConfig": {
           "defaults": {
             "custom": {}
@@ -33,7 +34,7 @@
         "fill": 1,
         "fillGradient": 0,
         "gridPos": {
-          "h": 9,
+          "h": 8,
           "w": 12,
           "x": 0,
           "y": 0
@@ -100,7 +101,7 @@
               {
                 "key": "deployment_name",
                 "operator": "=",
-                "value": "influxdb-deployment"
+                "value": "vsftpd"
               }
             ]
           }
@@ -109,7 +110,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "influxdb panel",
+        "title": "FTPS",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -171,7 +172,7 @@
       ]
     },
     "timezone": "",
-    "title": "Influxdb dashboard",
-    "uid": "SSRrvEnGk",
-    "version": 1
-  }
+    "title": "Ftps dashboard",
+    "uid": "nKlsvPnMk",
+    "version": 3
+}

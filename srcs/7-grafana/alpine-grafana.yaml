@@ -56,12 +56,12 @@ spec:
         readinessProbe:
           tcpSocket:
             port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 180
+          periodSeconds: 20
         livenessProbe:
           tcpSocket:
             port: 3000
-          initialDelaySeconds: 15
+          initialDelaySeconds: 180
           periodSeconds: 20
         volumeMounts:
         - name: grafana-persistent-storage

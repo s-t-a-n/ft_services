@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 4,
   "links": [],
   "panels": [
     {
@@ -100,7 +100,7 @@
             {
               "key": "deployment_name",
               "operator": "=",
-              "value": "phpmyadmin-deployment"
+              "value": "mariadb"
             }
           ]
         }
@@ -109,7 +109,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Panel Title",
+      "title": "mysql panel",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -171,7 +171,7 @@
     ]
   },
   "timezone": "",
-  "title": "PhpMyadmin dashboard",
-  "uid": "bNM6vPnGk",
-  "version": 1
+  "title": "Mysql dashboard",
+  "uid": "zP3rDEnGk",
+  "version": 2
 }
