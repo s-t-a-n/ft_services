@@ -14,7 +14,7 @@ spec:
       protocol: TCP
   selector:
     app: influxdb
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -58,12 +58,12 @@ spec:
         readinessProbe:
           tcpSocket:
             port: 8086
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 180
+          periodSeconds: 20
         livenessProbe:
           tcpSocket:
             port: 8086
-          initialDelaySeconds: 15
+          initialDelaySeconds: 180
           periodSeconds: 20
         volumeMounts:
         - name: influxdb-persistent-storage

@@ -2,7 +2,7 @@ FROM alpine:latest
 
 ENV NAME="influxdb"
 
-ENV PACKAGES="supervisor openssh influxdb"
+ENV PACKAGES="supervisor bash wget openssh influxdb"
 
 ENV DOCKER_SRC="docker-srcs"
 ENV GLOB_CONT_SCRIPTS="$DOCKER_SRC/global_container_scripts"

@@ -8,6 +8,6 @@ source $basedir/../cluster-properties.txt
 
 wait_for_pod influxdb default
 DB_POD="$(kubectl get pod --all-namespaces| grep influxdb | awk '{print $2}')"
-inject_influxdb __SQL_QUEUE_FILE__ "$DB_POD"
+inject_influxdb __INFLUXDB_QUEUE_FILE__ "$DB_POD"
 
 exit $?
