@@ -15,32 +15,37 @@
 KERNEL="$(uname -s)"
 
 # Global flags/vars
-MINIKUBE_FLAGS=
+MINIKUBE_FLAGS="--vm-driver=virtualbox --memory 4096 --cpus 4 --disk-size 40g"
+
+
+CALLEE=$0
 ACTION=
 BASEDIR="$(dirname $0)"
 SRC=$BASEDIR/srcs
-OBJ=$BASEDIR/obj
+OBJ=$BASEDIR/tmp
 
 CLUSTER_PROPERTIES=$SRC/cluster-properties.txt
 CLUSTER_AUTHENTICATION=$SRC/cluster-authentication.txt
 
+DEPENDENCIES=(kubectl docker minikube)
 export MINIKUBE_IN_STYLE=false # disable childish emoji
 
 source $SRC/global_scripts/sed_i.sh # POSIX ? couldn't be bothered !
 
 case $KERNEL in
 	Darwin)
-		MINIKUBE_FLAGS+="--vm-driver=virtualbox --memory 4096 --cpus 4 --disk-size 40g"
-		GOINFRE=/sgoinfre/sverschu/ 
+		MINIKUBE_FLAGS+=""
+		#GOINFRE=/sgoinfre/${USER}/ 
+		GOINFRE=~/goinfre
+		[ ! -d $GOINFRE ] && { mkdir -p $GOINFRE && chmod 700 $GOINFRE || { echo "Couldn't setup directory '$GOINFRE' for storing minikube -> set GOINFRE manually in setup.sh @ ~35"; exit 1; } }
 		;;
 	Linux)
-		MINIKUBE_FLAGS+="--vm-driver=virtualbox --memory 4096 --cpus 4 --disk-size 40g"
+		MINIKUBE_FLAGS+=""
 		GOINFRE=~/goinfre
 		;;
+		*) echo "Your OS is not supported."; exit 1 ;;
 esac
 
-
-DEPENDENCIES=(kubectl docker minikube wget)
 function clean_up()
 {
 	case $1 in
@@ -56,7 +61,6 @@ function clean_up()
 		;;
 	esac
 }
-
 trap "clean_up INT" INT
 trap "clean_up TERM" TERM
 trap "clean_up EXIT" EXIT
@@ -129,7 +133,21 @@ function banner()
 
 function usage()
 {
-	echo USAGE
+	cat <<EOF
+$CALLEE
+	launch # setup complete environment
+	start # start minikube
+	activate
+		[service] # start a service manually
+	stop # stop minikube
+	get 
+		admin # get admin token
+	add
+		wireguard-peer # add wireguard-peer for remote access
+	purge # remove everything including docker images
+	clean # remove minikube virtualmachine
+
+EOF
 	exit 1
 }
 
@@ -272,6 +290,8 @@ function perform_actions()
 		launch)
 			ACTION=start perform_actions
 			ACTION=activate perform_actions
+			logp info "The computer says everything is good. Here is the service information:"
+			kubectl get service --all-namespaces
 			return $?
 		;;
 		start)
