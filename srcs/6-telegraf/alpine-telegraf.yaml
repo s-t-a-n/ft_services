@@ -10,7 +10,7 @@ spec:
       name: ssh
   selector:
     app: telegraf
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

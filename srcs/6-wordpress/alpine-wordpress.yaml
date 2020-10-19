@@ -59,12 +59,12 @@ spec:
         readinessProbe:
           tcpSocket:
             port: 5050
-          initialDelaySeconds: 180
+          initialDelaySeconds: 360
           periodSeconds: 20
         livenessProbe:
           tcpSocket:
             port: 5050
-          initialDelaySeconds: 180
+          initialDelaySeconds: 360
           periodSeconds: 20
         volumeMounts:
         - name: wordpress-persistent-storage
